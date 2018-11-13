@@ -84,5 +84,9 @@ fabric.properties
 # End of https://www.gitignore.io/api/go,intellij
 vendor/
 
-dpg
 dist/
+
+transart
+artifact-transfer
+.transart.yml
+.transart/
