@@ -1,0 +1,45 @@
+# This is an example goreleaser.yaml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+before:
+  hooks:
+  - dep ensure
+builds:
+-
+  ldflags:
+    - -s -w -X github.com/jmatsu/artifact-transfer/version.Version={{.Version}} -X github.com/jmatsu/artifact-transfer/version.commit={{.Commit}} -X github.com/jmatsu/artifact-transfer/version.date={{.Date}}
+  goos:
+    - linux
+    - darwin
+    - windows
+  goarch:
+    - "386"
+    - arm
+    - arm64
+    - amd64
+  env:
+    - CGO_ENABLED=0
+archive:
+  name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  format_overrides:
+    - goos: windows
+      format: zip
+  replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+snapshot:
+  name_template: "SNAPSHOT-{{ .Commit }}"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+    - '^scripts:'
+    - '^fixture:'
+    - Merge pull request
+    - Merge branch

@@ -1,0 +1,48 @@
+default_env: &default_env
+  docker:
+    - image: circleci/golang:1.10.3
+  working_directory: /go/src/github.com/jmatsu/artifact-transfer
+  environments:
+    RELEASE_TAG: v0.0.1
+
+version: 2
+jobs:
+  on_every_commit:
+    <<: *default_env
+    steps:
+      - checkout
+      - run: &download_dep
+          name: Download dependencies
+          command: |
+            if type dep >/dev/null 2>&1; then
+              rm $(which dep)
+            fi
+
+            (curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh)
+
+            echo 'export PATH=$GOPATH/bin:$PATH' >> $BASH_ENV
+            /go/bin/dep version
+      - run: dep ensure
+      - run: go build .
+      - run: go test -v ./...
+      - run: ./scripts/make_diff_by_go-fmt
+  release:
+    <<: *default_env
+    steps:
+      - checkout
+      - run: *download_dep
+      - run: curl -sL https://git.io/goreleaser | bash
+
+workflows:
+  version: 2
+  every_branch:
+    jobs:
+      - on_every_commit
+  release_binary:
+    jobs:
+      - release:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
