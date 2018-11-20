@@ -5,6 +5,7 @@ import (
 	"github.com/jmatsu/artifact-transfer/command/destination"
 	"github.com/jmatsu/artifact-transfer/command/source"
 	"github.com/jmatsu/artifact-transfer/core"
+	"github.com/jmatsu/artifact-transfer/github"
 	"github.com/jmatsu/artifact-transfer/version"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
@@ -32,6 +33,9 @@ SUPPORT:
 		fmt.Println(version.Template())
 	}
 
+	var flags []cli.Flag
+	flags = append(flags, github.Flags()...)
+
 	app := &cli.App{}
 	app.Name = "transart"
 	app.Usage = "Transfer CI Artifacts"
@@ -42,7 +46,7 @@ SUPPORT:
 	app.Commands = []*cli.Command{
 		{
 			Name:  "transfer",
-			Usage: "Download artifacts and assets from sources, and upload them to the destination.",
+			Usage: "Download artifacts and assets from sources, and upload them to the destination",
 			Action: func(context *cli.Context) error {
 				config, err := core.LoadConfig()
 
@@ -54,11 +58,39 @@ SUPPORT:
 					return err
 				}
 
-				if err := destination.NewUploadAction().Destination(*config); err != nil {
+				if err := destination.NewUploadAction(*context).Destination(*config); err != nil {
 					return err
 				}
 
 				return nil
+			},
+		},
+		{
+			Name:  "download",
+			Usage: "Download artifacts and assets from sources",
+			Flags: flags,
+			Action: func(context *cli.Context) error {
+				config, err := core.LoadConfig()
+
+				if err != nil {
+					return err
+				}
+
+				return source.NewDownloadAction().Source(*config)
+			},
+		},
+		{
+			Name:  "upload",
+			Usage: "Upload artifacts and assets the destination",
+			Flags: flags,
+			Action: func(context *cli.Context) error {
+				config, err := core.LoadConfig()
+
+				if err != nil {
+					return err
+				}
+
+				return destination.NewUploadAction(*context).Destination(*config)
 			},
 		},
 	}

@@ -5,18 +5,50 @@ import (
 	"github.com/jmatsu/artifact-transfer/command"
 	"github.com/jmatsu/artifact-transfer/github"
 	"github.com/jmatsu/artifact-transfer/github/action"
+	"github.com/jmatsu/artifact-transfer/github/entity"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/urfave/cli.v2"
 	"io/ioutil"
 	"os"
 )
 
-func NewUploadAction() command.Actions {
+func NewUploadAction(c cli.Context) command.Actions {
 	return command.Actions{
 		GitHubRelease: func(config github.Config) error {
-			release, err := action.GetDraftRelease(config)
-
-			if err != nil {
+			if err := config.Validate(); err != nil {
 				return err
+			}
+
+			tagName := c.String(github.TagNameFlag().Name)
+			ref := c.String(github.RefFlag().Name)
+
+			var releaseToBeUpdated *entity.Release
+
+			switch config.GetStrategy() {
+			case github.Create:
+				if release, err := action.CreateDraftRelease(config, tagName, ref); err == nil {
+					releaseToBeUpdated = &release
+				} else {
+					return err
+				}
+			case github.Draft:
+				if release, err := action.GetDraftRelease(config); err == nil {
+					releaseToBeUpdated = &release
+				} else {
+					return err
+				}
+			case github.DraftOrCreate:
+				if release, err := action.GetDraftRelease(config); err == nil {
+					releaseToBeUpdated = &release
+				} else if release, err := action.CreateDraftRelease(config, tagName, ref); err == nil {
+					releaseToBeUpdated = &release
+				} else {
+					return err
+				}
+			}
+
+			if releaseToBeUpdated == nil {
+				panic(fmt.Errorf("implementation error"))
 			}
 
 			fs, err := ioutil.ReadDir(".transart")
@@ -27,7 +59,7 @@ func NewUploadAction() command.Actions {
 
 			for _, f := range fs {
 				recursive(".transart", f, func(dirname string, info os.FileInfo) error {
-					asset, err := action.UploadToRelease(config, release, fmt.Sprintf("%s/%s", dirname, info.Name()))
+					asset, err := action.UploadToRelease(config, *releaseToBeUpdated, fmt.Sprintf("%s/%s", dirname, info.Name()))
 
 					if err != nil {
 						return err

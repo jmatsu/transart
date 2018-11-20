@@ -21,3 +21,11 @@ func UploadReleaseEndpoint(uri string) core.Endpoint {
 		Accept:   "application/vnd.github.v3+json",
 	}
 }
+
+func CreateReleaseEndpoint(username string, repoName string) core.Endpoint {
+	return core.Endpoint{
+		Url:      fmt.Sprintf("https://api.github.com/repos/%s/%s/releases", username, repoName),
+		AuthType: core.HeaderAuth,
+		Accept:   "application/vnd.github.v3+json",
+	}
+}

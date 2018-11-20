@@ -7,7 +7,6 @@ import (
 	"github.com/jmatsu/artifact-transfer/github"
 	"github.com/jmatsu/artifact-transfer/github/entity"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/url"
 	"path/filepath"
@@ -25,7 +24,6 @@ func getReleases(config github.Config) ([]entity.Release, error) {
 	if bytes, err := core.GetRequest(apiEndpoint, github.NewToken(config.GetApiToken()), nil); err != nil {
 		return nil, err
 	} else if err := json.Unmarshal(bytes, &releases); err != nil {
-		logrus.Debugln(string(bytes))
 		err = errors.Wrap(err, "an error happened while parsing the response as json")
 		return nil, err
 	}
@@ -55,6 +53,46 @@ func GetDraftRelease(config github.Config) (entity.Release, error) {
 	}
 
 	return release, fmt.Errorf("draft release is not found\n")
+}
+
+func CreateDraftRelease(config github.Config, tagName string, targetCommitish string) (release entity.Release, err error) {
+	err = config.Validate()
+
+	if err != nil {
+		return
+	}
+
+	body := struct {
+		A string `json:"tag_name"`
+		B string `json:"target_commitish"`
+		C bool   `json:"draft"`
+	}{
+		tagName,
+		targetCommitish,
+		true,
+	}
+
+	bodyBytes, err := json.Marshal(body)
+
+	if err != nil {
+		return
+	}
+
+	apiEndpoint := github.CreateReleaseEndpoint(config.GetUsername(), config.GetRepoName())
+
+	bytes, err := core.PostRequest(apiEndpoint, github.NewToken(config.GetApiToken()), nil, bodyBytes)
+
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(bytes, &release)
+
+	if err != nil {
+		return
+	}
+
+	return
 }
 
 func UploadToRelease(config github.Config, release entity.Release, path string) (asset entity.Asset, err error) {

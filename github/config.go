@@ -8,16 +8,43 @@ import (
 	"os"
 )
 
-type configKey string
+type (
+	configKey string
 
-type Config map[configKey]interface{}
+	Strategy string
+
+	Config map[configKey]interface{}
+)
 
 const (
 	typeKey         configKey = core.LocationTypeKey
 	usernameKey               = "username"
 	repoNameKey               = "reponame"
 	apiTokenNameKey           = "api-token-name"
+	strategyKey               = "strategy"
 )
+
+const (
+	Draft         Strategy = "draft"
+	DraftOrCreate          = "draft-or-create"
+	Create                 = "create"
+)
+
+func isStrategy(s string) bool {
+	strategies := []Strategy{
+		Draft,
+		DraftOrCreate,
+		Create,
+	}
+
+	for _, strategy := range strategies {
+		if strategy == Strategy(s) {
+			return true
+		}
+	}
+
+	return false
+}
 
 func NewConfig(lc core.LocationConfig) (Config, error) {
 	if t, err := lc.GetLocationType(); err != nil || t != core.GitHubRelease {
@@ -43,6 +70,10 @@ func (c Config) Validate() error {
 	}
 
 	if _, err := c.getRepoName(); err != nil {
+		return err
+	}
+
+	if _, err := c.getStrategy(); err != nil {
 		return err
 	}
 
@@ -111,4 +142,30 @@ func (c Config) SetApiTokenName(v null.String) {
 	} else {
 		logrus.Warnf("SetApiTokenName was called but ignored because the argument is invalid string with %s\n", v.String)
 	}
+}
+
+func (c Config) getStrategy() (*Strategy, error) {
+	if v, prs := c[strategyKey]; prs {
+		if !isStrategy(v.(string)) {
+			return nil, fmt.Errorf("%s is not a valid strategy", v)
+		}
+
+		s := Strategy(v.(string))
+
+		return &s, nil
+	}
+
+	return nil, fmt.Errorf("%s is missing\n", strategyKey)
+}
+
+func (c Config) GetStrategy() Strategy {
+	if s, err := c.getStrategy(); err != nil {
+		panic(err)
+	} else {
+		return *s
+	}
+}
+
+func (c Config) SetStrategy(s Strategy) {
+	c[strategyKey] = string(s)
 }
