@@ -15,7 +15,7 @@ const (
 	Bitbucket         = "bitbucket"
 )
 
-func newVcsType(v string) (VcsType, error) {
+func NewVcsType(v string) (VcsType, error) {
 	t := VcsType(v)
 
 	switch t {

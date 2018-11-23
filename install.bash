@@ -31,10 +31,10 @@ download() {
 
     if is_windows; then
         curl -sL -o "$temp_file" \
-            "$RELEASE_URL/download/$VERSION/artifact-transfer_$(uname -s)_$(uname -m).zip"
+            "$RELEASE_URL/download/$VERSION/transart_$(uname -s)_$(uname -m).zip"
     else
         curl -sL -o "$temp_file" \
-            "$RELEASE_URL/download/$VERSION/artifact-transfer_$(uname -s)_$(uname -m).tar.gz"
+            "$RELEASE_URL/download/$VERSION/transart_$(uname -s)_$(uname -m).tar.gz"
     fi
 }
 
@@ -59,6 +59,6 @@ else
     tar -xf "$TEMP_FILE" -C "$TEMP_DIR"
 fi
 
-cp "$TEMP_DIR/artifact-transfer" .
+cp "$TEMP_DIR/transart" .
 
 rm -fr "$TEMP_DIR"

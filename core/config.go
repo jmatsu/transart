@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
 )
 
 type (
 	RootConfig struct {
 		Version     uint              `yaml:"version"`
+		SaveDir     string            `yaml:"save_dir"`
 		Source      SourceConfig      `yaml:"source"`
 		Destination DestinationConfig `yaml:"destination"`
 	}
@@ -33,6 +35,7 @@ type (
 const (
 	CircleCI      LocationType = "circleci"
 	GitHubRelease              = "github-release"
+	Local                      = "local"
 )
 
 const LocationTypeKey = "type"
@@ -45,6 +48,10 @@ func (c LocationConfig) GetLocationType() (LocationType, error) {
 	}
 
 	return LocationType(""), fmt.Errorf("%s is missing or an invalid value\n", LocationTypeKey)
+}
+
+func (c LocationConfig) SetLocationType(t LocationType) {
+	c[LocationTypeKey] = t
 }
 
 func NewLocationType(v string) (LocationType, error) {
@@ -60,7 +67,7 @@ func NewLocationType(v string) (LocationType, error) {
 	}
 }
 
-func LoadConfig() (*RootConfig, error) {
+func LoadRootConfig() (*RootConfig, error) {
 	config := RootConfig{}
 
 	if bytes, err := ioutil.ReadFile(".transart.yml"); err != nil {
@@ -72,11 +79,16 @@ func LoadConfig() (*RootConfig, error) {
 	return &config, nil
 }
 
+func ExistsRootConfig() bool {
+	_, err := os.Stat(".transart.yml")
+
+	return err == nil || !os.IsNotExist(err)
+}
+
 func (c *RootConfig) Save() error {
 	if bytes, err := yaml.Marshal(c); err != nil {
 		return err
 	} else {
-		ioutil.WriteFile(".transart.yml", bytes, 0644)
-		return nil
+		return ioutil.WriteFile(".transart.yml", bytes, 0644)
 	}
 }

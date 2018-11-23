@@ -73,7 +73,7 @@ func GetArtifactsFindFirst(config circleci.Config) ([]entity.Artifact, error) {
 	return nil, fmt.Errorf("Not found jobs which have at least one artifacts and had finished\n")
 }
 
-func DownloadArtifact(config circleci.Config, artifact entity.Artifact) error {
+func DownloadArtifact(rootConfig core.RootConfig, config circleci.Config, artifact entity.Artifact) error {
 	endpoint := circleci.DownloadArtifactEndpoint(artifact)
 
 	if bytes, err := core.GetRequest(endpoint, circleci.NewToken(config.GetApiToken()), nil); err != nil {
@@ -81,14 +81,14 @@ func DownloadArtifact(config circleci.Config, artifact entity.Artifact) error {
 	} else {
 		filename := filepath.Base(artifact.Path)
 
-		if f, err := os.Stat(".transart"); os.IsNotExist(err) {
-			if err := os.Mkdir(".transart", os.ModePerm); err != nil {
+		if f, err := os.Stat(rootConfig.SaveDir); os.IsNotExist(err) {
+			if err := os.MkdirAll(rootConfig.SaveDir, os.ModePerm); err != nil {
 				return err
 			}
 		} else if !f.IsDir() {
 			return fmt.Errorf(".transart file already exists")
 		}
 
-		return ioutil.WriteFile(fmt.Sprintf(".transart/%s", filename), bytes, 0644)
+		return ioutil.WriteFile(fmt.Sprintf("%s/%s", rootConfig.SaveDir, filename), bytes, 0644)
 	}
 }

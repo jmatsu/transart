@@ -9,19 +9,19 @@ import (
 )
 
 type (
-	configKey string
-
 	Strategy string
 
-	Config map[configKey]interface{}
+	Config struct {
+		values core.LocationConfig
+		Err    error
+	}
 )
 
 const (
-	typeKey         configKey = core.LocationTypeKey
-	usernameKey               = "username"
-	repoNameKey               = "reponame"
-	apiTokenNameKey           = "api-token-name"
-	strategyKey               = "strategy"
+	usernameKey     = "username"
+	repoNameKey     = "reponame"
+	apiTokenNameKey = "api-token-name"
+	strategyKey     = "strategy"
 )
 
 const (
@@ -46,7 +46,7 @@ func isStrategy(s string) bool {
 	return false
 }
 
-func NewConfig(lc core.LocationConfig) (Config, error) {
+func NewConfig(lc core.LocationConfig) (*Config, error) {
 	if t, err := lc.GetLocationType(); err != nil || t != core.GitHubRelease {
 		if err == nil {
 			err = fmt.Errorf("location type is not for github releases so the caller is wrong")
@@ -55,37 +55,31 @@ func NewConfig(lc core.LocationConfig) (Config, error) {
 		return nil, err
 	}
 
-	config := Config{}
-
-	for k, v := range lc {
-		config[configKey(k)] = v
+	config := &Config{
+		values: lc,
 	}
 
 	return config, nil
 }
 
-func (c Config) Validate() error {
-	if _, err := c.getUsername(); err != nil {
-		return err
+func (c Config) setError(_ interface{}, err error) {
+	if c.Err != nil {
+		return
 	}
 
-	if _, err := c.getRepoName(); err != nil {
-		return err
-	}
-
-	if _, err := c.getStrategy(); err != nil {
-		return err
-	}
-
-	return nil
+	c.Err = err
 }
 
-func (c Config) SetType(v core.LocationType) {
-	c[typeKey] = v
+func (c Config) Validate() error {
+	c.setError(c.getUsername())
+	c.setError(c.getRepoName())
+	c.setError(c.getStrategy())
+
+	return c.Err
 }
 
 func (c Config) getUsername() (string, error) {
-	if v, prs := c[usernameKey]; prs {
+	if v, prs := c.values[usernameKey]; prs {
 		return v.(string), nil
 	}
 
@@ -101,11 +95,11 @@ func (c Config) GetUsername() string {
 }
 
 func (c Config) SetUsername(v string) {
-	c[usernameKey] = v
+	c.values[usernameKey] = v
 }
 
 func (c Config) getRepoName() (string, error) {
-	if v, prs := c[repoNameKey]; prs {
+	if v, prs := c.values[repoNameKey]; prs {
 		return v.(string), nil
 	}
 
@@ -121,11 +115,11 @@ func (c Config) GetRepoName() string {
 }
 
 func (c Config) SetRepoName(v string) {
-	c[repoNameKey] = v
+	c.values[repoNameKey] = v
 }
 
 func (c Config) GetApiToken() null.String {
-	if v, prs := c[apiTokenNameKey]; prs {
+	if v, prs := c.values[apiTokenNameKey]; prs {
 		if v, ok := os.LookupEnv(v.(string)); ok {
 			return null.StringFrom(v)
 		} else {
@@ -138,14 +132,14 @@ func (c Config) GetApiToken() null.String {
 
 func (c Config) SetApiTokenName(v null.String) {
 	if v.Valid {
-		c[apiTokenNameKey] = v
+		c.values[apiTokenNameKey] = v
 	} else {
 		logrus.Warnf("SetApiTokenName was called but ignored because the argument is invalid string with %s\n", v.String)
 	}
 }
 
 func (c Config) getStrategy() (*Strategy, error) {
-	if v, prs := c[strategyKey]; prs {
+	if v, prs := c.values[strategyKey]; prs {
 		if !isStrategy(v.(string)) {
 			return nil, fmt.Errorf("%s is not a valid strategy", v)
 		}
@@ -167,5 +161,5 @@ func (c Config) GetStrategy() Strategy {
 }
 
 func (c Config) SetStrategy(s Strategy) {
-	c[strategyKey] = string(s)
+	c.values[strategyKey] = string(s)
 }

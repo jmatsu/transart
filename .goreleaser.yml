@@ -6,7 +6,7 @@ before:
 builds:
 -
   ldflags:
-    - -s -w -X github.com/jmatsu/artifact-transfer/version.Version={{.Version}} -X github.com/jmatsu/artifact-transfer/version.commit={{.Commit}} -X github.com/jmatsu/artifact-transfer/version.date={{.Date}}
+    - -o transart -s -w -X github.com/jmatsu/artifact-transfer/version.Version={{.Version}} -X github.com/jmatsu/artifact-transfer/version.commit={{.Commit}} -X github.com/jmatsu/artifact-transfer/version.date={{.Date}}
   goos:
     - linux
     - darwin
@@ -19,7 +19,7 @@ builds:
   env:
     - CGO_ENABLED=0
 archive:
-  name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  name_template: 'transart_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
   format_overrides:
     - goos: windows
       format: zip
@@ -30,7 +30,7 @@ archive:
     386: i386
     amd64: x86_64
 checksum:
-  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+  name_template: 'transart_{{ .Version }}_checksums.txt'
 snapshot:
   name_template: "SNAPSHOT-{{ .Commit }}"
 changelog:

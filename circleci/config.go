@@ -9,21 +9,21 @@ import (
 	"regexp"
 )
 
-type configKey string
-
-type Config map[configKey]interface{}
+type Config struct {
+	values core.LocationConfig
+	Err    error
+}
 
 const (
-	typeKey         configKey = core.LocationTypeKey
-	vcsTypeKey                = "vcs-type"
-	usernameKey               = "username"
-	repoNameKey               = "reponame"
-	branchKey                 = "branch"
-	apiTokenNameKey           = "api-token-name"
-	fileNamePattern           = "file-name-pattern"
+	vcsTypeKey      = "vcs-type"
+	usernameKey     = "username"
+	repoNameKey     = "reponame"
+	branchKey       = "branch"
+	apiTokenNameKey = "api-token-name"
+	fileNamePattern = "file-name-pattern"
 )
 
-func NewConfig(lc core.LocationConfig) (Config, error) {
+func NewConfig(lc core.LocationConfig) (*Config, error) {
 	if t, err := lc.GetLocationType(); err != nil || t != core.CircleCI {
 		if err == nil {
 			err = fmt.Errorf("location type is not for circleci so the caller is wrong")
@@ -32,43 +32,34 @@ func NewConfig(lc core.LocationConfig) (Config, error) {
 		return nil, err
 	}
 
-	config := Config{}
-
-	for k, v := range lc {
-		config[configKey(k)] = v
+	config := &Config{
+		values: lc,
 	}
 
 	return config, nil
 }
 
 func (c Config) Validate() error {
-	if _, err := c.getVcsType(); err != nil {
-		return err
-	}
+	c.setErr(c.getVcsType())
+	c.setErr(c.getUsername())
+	c.setErr(c.getRepoName())
+	c.setErr(c.getFileNamePattern())
 
-	if _, err := c.getUsername(); err != nil {
-		return err
-	}
-
-	if _, err := c.getRepoName(); err != nil {
-		return err
-	}
-
-	if _, err := c.getFileNamePattern(); err != nil {
-		return err
-	}
-
-	return nil
+	return c.Err
 }
 
-func (c Config) SetType(v core.LocationType) {
-	c[typeKey] = v
+func (c Config) setErr(_ interface{}, err error) {
+	if c.Err != nil {
+		return
+	}
+
+	c.Err = err
 }
 
 func (c Config) getVcsType() (VcsType, error) {
-	if v, prs := c[vcsTypeKey]; prs {
+	if v, prs := c.values[vcsTypeKey]; prs {
 		if v, ok := v.(string); ok {
-			return newVcsType(v)
+			return NewVcsType(v)
 		}
 	}
 
@@ -84,11 +75,11 @@ func (c Config) GetVcsType() VcsType {
 }
 
 func (c Config) SetVcsType(v VcsType) {
-	c[vcsTypeKey] = v
+	c.values[vcsTypeKey] = v
 }
 
 func (c Config) getUsername() (string, error) {
-	if v, prs := c[usernameKey]; prs {
+	if v, prs := c.values[usernameKey]; prs {
 		return v.(string), nil
 	}
 
@@ -104,11 +95,11 @@ func (c Config) GetUsername() string {
 }
 
 func (c Config) SetUsername(v string) {
-	c[usernameKey] = v
+	c.values[usernameKey] = v
 }
 
 func (c Config) getRepoName() (string, error) {
-	if v, prs := c[repoNameKey]; prs {
+	if v, prs := c.values[repoNameKey]; prs {
 		return v.(string), nil
 	}
 
@@ -124,11 +115,11 @@ func (c Config) GetRepoName() string {
 }
 
 func (c Config) SetRepoName(v string) {
-	c[repoNameKey] = v
+	c.values[repoNameKey] = v
 }
 
 func (c Config) GetBranch() null.String {
-	if v, prs := c[branchKey]; prs {
+	if v, prs := c.values[branchKey]; prs {
 		return null.StringFrom(v.(string))
 	} else {
 		return null.StringFromPtr(nil)
@@ -137,14 +128,14 @@ func (c Config) GetBranch() null.String {
 
 func (c Config) SetBranch(v null.String) {
 	if v.Valid {
-		c[branchKey] = v
+		c.values[branchKey] = v
 	} else {
 		logrus.Warnf("SetBranch was called but ignored because the argument is invalid string with %s\n", v.String)
 	}
 }
 
 func (c Config) GetApiToken() null.String {
-	if v, prs := c[apiTokenNameKey]; prs {
+	if v, prs := c.values[apiTokenNameKey]; prs {
 		if v, ok := os.LookupEnv(v.(string)); ok {
 			return null.StringFrom(v)
 		} else {
@@ -157,14 +148,14 @@ func (c Config) GetApiToken() null.String {
 
 func (c Config) SetApiTokenName(v null.String) {
 	if v.Valid {
-		c[apiTokenNameKey] = v
+		c.values[apiTokenNameKey] = v
 	} else {
 		logrus.Warnf("SetApiTokenName was called but ignored because the argument is invalid string with %s\n", v.String)
 	}
 }
 
 func (c Config) getFileNamePattern() (string, error) {
-	if v, prs := c[fileNamePattern]; prs {
+	if v, prs := c.values[fileNamePattern]; prs {
 		if _, err := regexp.Compile(v.(string)); err != nil {
 			return "", err
 		} else {
@@ -184,5 +175,5 @@ func (c Config) GetFileNamePattern() string {
 }
 
 func (c Config) SetFileNamePattern(v null.String) {
-	c[fileNamePattern] = v
+	c.values[fileNamePattern] = v
 }

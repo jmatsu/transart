@@ -7,13 +7,13 @@ import (
 )
 
 type Actions struct {
-	CircleCI      func(config circleci.Config) error
-	GitHubRelease func(config github.Config) error
+	CircleCI      func(rootConfig core.RootConfig, config circleci.Config) error
+	GitHubRelease func(rootConfig core.RootConfig, config github.Config) error
 }
 
-func (a Actions) Source(config core.RootConfig) error {
-	for _, lc := range config.Source.Locations {
-		if err := a.run(lc); err != nil {
+func (a Actions) Source(rootConfig core.RootConfig) error {
+	for _, lc := range rootConfig.Source.Locations {
+		if err := a.run(rootConfig, lc); err != nil {
 			return err
 		}
 	}
@@ -21,11 +21,11 @@ func (a Actions) Source(config core.RootConfig) error {
 	return nil
 }
 
-func (a Actions) Destination(config core.RootConfig) error {
-	return a.run(config.Destination.Location)
+func (a Actions) Destination(rootConfig core.RootConfig) error {
+	return a.run(rootConfig, rootConfig.Destination.Location)
 }
 
-func (a Actions) run(lc core.LocationConfig) error {
+func (a Actions) run(rootConfig core.RootConfig, lc core.LocationConfig) error {
 	t, err := lc.GetLocationType()
 
 	if err != nil {
@@ -40,7 +40,7 @@ func (a Actions) run(lc core.LocationConfig) error {
 			return err
 		}
 
-		if err := a.CircleCI(c); err != nil {
+		if err := a.CircleCI(rootConfig, *c); err != nil {
 			return err
 		}
 	case core.GitHubRelease:
@@ -50,7 +50,7 @@ func (a Actions) run(lc core.LocationConfig) error {
 			return err
 		}
 
-		if err := a.GitHubRelease(c); err != nil {
+		if err := a.GitHubRelease(rootConfig, *c); err != nil {
 			return err
 		}
 	}

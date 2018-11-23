@@ -55,7 +55,7 @@ func GetDraftRelease(config github.Config) (entity.Release, error) {
 	return release, fmt.Errorf("draft release is not found\n")
 }
 
-func CreateDraftRelease(config github.Config, tagName string, targetCommitish string) (release entity.Release, err error) {
+func CreateDraftRelease(config github.Config) (release entity.Release, err error) {
 	err = config.Validate()
 
 	if err != nil {
@@ -67,8 +67,8 @@ func CreateDraftRelease(config github.Config, tagName string, targetCommitish st
 		B string `json:"target_commitish"`
 		C bool   `json:"draft"`
 	}{
-		tagName,
-		targetCommitish,
+		"", // this is required but the GitHub API can accept the request
+		"",
 		true,
 	}
 

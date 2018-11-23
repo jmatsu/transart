@@ -3,6 +3,7 @@ package destination
 import (
 	"fmt"
 	"github.com/jmatsu/artifact-transfer/command"
+	"github.com/jmatsu/artifact-transfer/core"
 	"github.com/jmatsu/artifact-transfer/github"
 	"github.com/jmatsu/artifact-transfer/github/action"
 	"github.com/jmatsu/artifact-transfer/github/entity"
@@ -14,19 +15,16 @@ import (
 
 func NewUploadAction(c cli.Context) command.Actions {
 	return command.Actions{
-		GitHubRelease: func(config github.Config) error {
+		GitHubRelease: func(rootConfig core.RootConfig, config github.Config) error {
 			if err := config.Validate(); err != nil {
 				return err
 			}
-
-			tagName := c.String(github.TagNameFlag().Name)
-			ref := c.String(github.RefFlag().Name)
 
 			var releaseToBeUpdated *entity.Release
 
 			switch config.GetStrategy() {
 			case github.Create:
-				if release, err := action.CreateDraftRelease(config, tagName, ref); err == nil {
+				if release, err := action.CreateDraftRelease(config); err == nil {
 					releaseToBeUpdated = &release
 				} else {
 					return err
@@ -40,7 +38,7 @@ func NewUploadAction(c cli.Context) command.Actions {
 			case github.DraftOrCreate:
 				if release, err := action.GetDraftRelease(config); err == nil {
 					releaseToBeUpdated = &release
-				} else if release, err := action.CreateDraftRelease(config, tagName, ref); err == nil {
+				} else if release, err := action.CreateDraftRelease(config); err == nil {
 					releaseToBeUpdated = &release
 				} else {
 					return err
@@ -58,7 +56,7 @@ func NewUploadAction(c cli.Context) command.Actions {
 			}
 
 			for _, f := range fs {
-				recursive(".transart", f, func(dirname string, info os.FileInfo) error {
+				recursive(rootConfig.SaveDir, f, func(dirname string, info os.FileInfo) error {
 					asset, err := action.UploadToRelease(config, *releaseToBeUpdated, fmt.Sprintf("%s/%s", dirname, info.Name()))
 
 					if err != nil {
@@ -84,8 +82,8 @@ func recursive(dirname string, f os.FileInfo, action func(dirname string, info o
 			return err
 		}
 
-		for _, _f := range fs {
-			if err := recursive(fmt.Sprintf("%s/%s", dirname, _f.Name()), _f, action); err != nil {
+		for _, f := range fs {
+			if err := recursive(fmt.Sprintf("%s/%s", dirname, f.Name()), f, action); err != nil {
 				return err
 			}
 		}
