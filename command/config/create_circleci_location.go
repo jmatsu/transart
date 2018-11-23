@@ -17,28 +17,34 @@ const (
 func CreateCircleCIConfigFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
-			Name:  circleciVcsTypeKey,
-			Usage: "a directory path of artifacts to be saved",
+			Name:    circleciVcsTypeKey,
+			Usage:   "a directory path of artifacts to be saved",
+			Aliases: []string{"v"},
 		},
 		&cli.StringFlag{
-			Name:  circleciUsernameKey,
-			Usage: "a username of a project",
+			Name:    circleciUsernameKey,
+			Usage:   "a username of a project",
+			Aliases: []string{"u"},
 		},
 		&cli.StringFlag{
-			Name:  circleciRepoNameKey,
-			Usage: "a repository name of a project",
+			Name:    circleciRepoNameKey,
+			Usage:   "a repository name of a project",
+			Aliases: []string{"r"},
 		},
 		&cli.StringFlag{
-			Name:  circleciApiTokenNameKey,
-			Usage: "a name of a environment variable which has an api token of CircleCI",
+			Name:    circleciApiTokenNameKey,
+			Usage:   "a name of a environment variable which has an api token of CircleCI",
+			Aliases: []string{"token"},
 		},
 		&cli.StringFlag{
-			Name:  circleciBranchKey,
-			Usage: "a branch to be filtered",
+			Name:    circleciBranchKey,
+			Usage:   "a branch to be filtered",
+			Aliases: []string{"b"},
 		},
 		&cli.StringFlag{
-			Name:  circleciFileNamePattern,
-			Usage: "a regexp pattern for file names to filter artifacts",
+			Name:    circleciFileNamePattern,
+			Usage:   "a regexp pattern for file names to filter artifacts",
+			Aliases: []string{"pattern"},
 		},
 	}
 }

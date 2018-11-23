@@ -11,6 +11,21 @@ const (
 	forceOptionKey   = "force"
 )
 
+func CreateRootConfigFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.PathFlag{
+			Name:    saveDirOptionKey,
+			Usage:   "a directory path of artifacts to be saved",
+			Aliases: []string{"p"},
+		},
+		&cli.BoolFlag{
+			Name:    forceOptionKey,
+			Usage:   "force to do it",
+			Aliases: []string{"f"},
+		},
+	}
+}
+
 func CreateRootConfig(c *cli.Context) error {
 	if config.ExistsRootConfig() {
 		if !c.Bool(forceOptionKey) {
@@ -42,17 +57,4 @@ func CreateRootConfig(c *cli.Context) error {
 	}
 
 	return rootConfig.Save()
-}
-
-func CreateRootConfigFlags() []cli.Flag {
-	return []cli.Flag{
-		&cli.StringFlag{
-			Name:  saveDirOptionKey,
-			Usage: "a directory path of artifacts to be saved",
-		},
-		&cli.BoolFlag{
-			Name:  forceOptionKey,
-			Usage: "force to do it",
-		},
-	}
 }

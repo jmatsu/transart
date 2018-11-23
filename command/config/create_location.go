@@ -14,14 +14,16 @@ const (
 func CreateAddLocationFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.BoolFlag{
-			Name:  sourceOptionKey,
-			Usage: "operate source configuration if specified",
-			Value: false,
+			Name:    sourceOptionKey,
+			Usage:   "operate source configuration if specified",
+			Value:   false,
+			Aliases: []string{"src"},
 		},
 		&cli.BoolFlag{
-			Name:  destinationOptionKey,
-			Usage: "operate source configuration if specified",
-			Value: false,
+			Name:    destinationOptionKey,
+			Usage:   "operate source configuration if specified",
+			Value:   false,
+			Aliases: []string{"dest"},
 		},
 	}
 }

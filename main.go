@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/jmatsu/artifact-transfer/command"
 	configCommand "github.com/jmatsu/artifact-transfer/command/config"
 	"github.com/jmatsu/artifact-transfer/command/destination"
 	"github.com/jmatsu/artifact-transfer/command/source"
@@ -40,6 +41,7 @@ SUPPORT:
 	app.Version = version.Version
 	app.EnableShellCompletion = true
 
+	app.Flags = command.CommonFlags()
 	app.Commands = []*cli.Command{
 		{
 			Name:   "init",

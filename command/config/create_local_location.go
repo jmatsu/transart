@@ -12,13 +12,15 @@ const (
 
 func CreateLocalConfigFlags() []cli.Flag {
 	return []cli.Flag{
-		&cli.StringFlag{
-			Name:  localPath,
-			Usage: "a file path",
+		&cli.PathFlag{
+			Name:    localPath,
+			Usage:   "a file path",
+			Aliases: []string{"p"},
 		},
 		&cli.StringFlag{
-			Name:  localFileNamePattern,
-			Usage: "a regexp pattern for file names to filter artifacts",
+			Name:    localFileNamePattern,
+			Usage:   "a regexp pattern for file names to filter artifacts",
+			Aliases: []string{"pattern"},
 		},
 	}
 }

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/jmatsu/artifact-transfer/config"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -8,27 +9,31 @@ import (
 const (
 	githubReleaseUsernameKey     = "username"
 	githubReleaseRepoNameKey     = "reponame"
-	githubReleaseStrategyKey     = "strategy"
 	githubReleaseApiTokenNameKey = "api-token-name"
+	githubReleaseStrategyKey     = "strategy"
 )
 
 func CreateGithubReleaseConfigFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
-			Name:  githubReleaseUsernameKey,
-			Usage: "a username of a project",
+			Name:    githubReleaseUsernameKey,
+			Usage:   "a username of a project",
+			Aliases: []string{"u"},
 		},
 		&cli.StringFlag{
-			Name:  githubReleaseRepoNameKey,
-			Usage: "a repository name of a project",
+			Name:    githubReleaseRepoNameKey,
+			Usage:   "a repository name of a project",
+			Aliases: []string{"r"},
 		},
 		&cli.StringFlag{
-			Name:  githubReleaseApiTokenNameKey,
-			Usage: "a name of a environment variable which has an api token of githubRelease",
+			Name:    githubReleaseApiTokenNameKey,
+			Usage:   "a name of a environment variable which has an api token of GitHub",
+			Aliases: []string{"token"},
 		},
 		&cli.StringFlag{
-			Name:  githubReleaseStrategyKey,
-			Usage: "a strategy to select a release to be updated",
+			Name:    githubReleaseStrategyKey,
+			Usage:   fmt.Sprintf("a strategy to select a release to be updated. either of %s, %s, %s", config.Draft, config.Create, config.DraftOrCreate),
+			Aliases: []string{"s"},
 		},
 	}
 }

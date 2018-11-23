@@ -6,7 +6,7 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
-func Validate(c *cli.Context) error {
+func Validate(_ *cli.Context) error {
 	rootConfig, err := config.LoadRootConfig()
 
 	if err != nil {
