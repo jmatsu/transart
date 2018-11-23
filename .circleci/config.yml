@@ -1,7 +1,7 @@
 default_env: &default_env
   docker:
     - image: circleci/golang:1.10.3
-  working_directory: /go/src/github.com/jmatsu/artifact-transfer
+  working_directory: /go/src/github.com/jmatsu/transart
   environments:
     RELEASE_TAG: v0.0.1
 
