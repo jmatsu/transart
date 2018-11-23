@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/guregu/null.v3"
 	"os"
 	"regexp"
@@ -136,12 +135,8 @@ func (c CircleCIConfig) GetBranch() null.String {
 	}
 }
 
-func (c CircleCIConfig) SetBranch(v null.String) {
-	if v.Valid {
-		c.values[branchKey] = v
-	} else {
-		logrus.Warnf("SetBranch was called but ignored because the argument is invalid string with %s\n", v.String)
-	}
+func (c CircleCIConfig) SetBranch(v *string) {
+	c.values[branchKey] = v
 }
 
 func (c CircleCIConfig) GetApiToken() null.String {
@@ -156,16 +151,12 @@ func (c CircleCIConfig) GetApiToken() null.String {
 	}
 }
 
-func (c CircleCIConfig) SetApiTokenName(v null.String) {
-	if v.Valid {
-		c.values[apiTokenNameKey] = v
-	} else {
-		logrus.Warnf("SetApiTokenName was called but ignored because the argument is invalid string with %s\n", v.String)
-	}
+func (c CircleCIConfig) SetApiTokenName(v *string) {
+	c.values[apiTokenNameKey] = v
 }
 
 func (c CircleCIConfig) getFileNamePattern() (string, error) {
-	if v, prs := c.values[fileNamePattern]; prs {
+	if v, prs := c.values[fileNamePattern]; prs && v != nil {
 		if _, err := regexp.Compile(v.(string)); err != nil {
 			return "", err
 		} else {
@@ -184,6 +175,6 @@ func (c CircleCIConfig) GetFileNamePattern() string {
 	}
 }
 
-func (c CircleCIConfig) SetFileNamePattern(v null.String) {
+func (c CircleCIConfig) SetFileNamePattern(v *string) {
 	c.values[fileNamePattern] = v
 }

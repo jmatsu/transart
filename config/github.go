@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/guregu/null.v3"
 	"os"
 )
@@ -122,12 +121,8 @@ func (c GitHubConfig) GetApiToken() null.String {
 	}
 }
 
-func (c GitHubConfig) SetApiTokenName(v null.String) {
-	if v.Valid {
-		c.values[apiTokenNameKey] = v
-	} else {
-		logrus.Warnf("SetApiTokenName was called but ignored because the argument is invalid string with %s\n", v.String)
-	}
+func (c GitHubConfig) SetApiTokenName(v *string) {
+	c.values[apiTokenNameKey] = v
 }
 
 func (c GitHubConfig) getStrategy() (*GitHubReleaseCreationStrategy, error) {

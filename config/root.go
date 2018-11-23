@@ -49,16 +49,14 @@ func (c LocationConfig) GetLocationType() (LocationType, error) {
 }
 
 func (c LocationConfig) SetLocationType(t LocationType) {
-	c[locationTypeKey] = t
+	c[locationTypeKey] = string(t)
 }
 
 func NewLocationType(v string) (LocationType, error) {
 	t := LocationType(v)
 
 	switch t {
-	case CircleCI:
-		return t, nil
-	case GitHubRelease:
+	case GitHubRelease, CircleCI, Local:
 		return t, nil
 	default:
 		return t, fmt.Errorf("%s is invalid location type\n", v)

@@ -48,27 +48,31 @@ SUPPORT:
 			Flags:  configCommand.CreateRootConfigFlags(),
 		},
 		{
+			Name:   "validate",
+			Usage:  "Validate a configuration file",
+			Action: configCommand.Validate,
+		},
+		{
 			Name:  "add",
 			Usage: "Add a new configuration of a location",
-			Flags: configCommand.CreateAddLocationFlags(),
 			Subcommands: []*cli.Command{
 				{
 					Name:   "circleci",
 					Usage:  "Create a configuration for CircleCI",
 					Action: configCommand.CreateCircleCIConfig,
-					Flags:  configCommand.CreateCircleCIConfigFlags(),
+					Flags:  append(configCommand.CreateAddLocationFlags(), configCommand.CreateCircleCIConfigFlags()...),
 				},
 				{
 					Name:   "github-release",
 					Usage:  "Create a configuration for GitHub Release",
 					Action: configCommand.CreateGithubReleaseConfig,
-					Flags:  configCommand.CreateGithubReleaseConfigFlags(),
+					Flags:  append(configCommand.CreateAddLocationFlags(), configCommand.CreateGithubReleaseConfigFlags()...),
 				},
 				{
 					Name:   "local",
 					Usage:  "Create a configuration for local file system",
 					Action: configCommand.CreateLocalConfig,
-					Flags:  configCommand.CreateLocalConfigFlags(),
+					Flags:  append(configCommand.CreateAddLocationFlags(), configCommand.CreateLocalConfigFlags()...),
 				},
 			},
 		},

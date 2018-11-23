@@ -2,12 +2,11 @@ package config
 
 import (
 	"github.com/jmatsu/artifact-transfer/config"
-	"gopkg.in/guregu/null.v3"
 	"gopkg.in/urfave/cli.v2"
 )
 
 const (
-	localPath            = "username"
+	localPath            = "path"
 	localFileNamePattern = "file-name-pattern"
 )
 
@@ -43,9 +42,11 @@ func CreateLocalConfig(c *cli.Context) error {
 	localConfig.SetPath(c.String(localPath))
 
 	if c.IsSet(localFileNamePattern) {
-		localConfig.SetFileNamePattern(null.StringFrom(c.String(localFileNamePattern)))
+		pattern := c.String(localFileNamePattern)
+
+		localConfig.SetFileNamePattern(&pattern)
 	} else {
-		localConfig.SetFileNamePattern(null.StringFromPtr(nil))
+		localConfig.SetFileNamePattern(nil)
 	}
 
 	if err := localConfig.Validate(); err != nil {

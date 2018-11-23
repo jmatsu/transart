@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/jmatsu/artifact-transfer/config"
-	"gopkg.in/guregu/null.v3"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -55,9 +54,11 @@ func CreateGithubReleaseConfig(c *cli.Context) error {
 	gitHubConfig.SetStrategy(config.GitHubReleaseCreationStrategy(c.String(githubReleaseStrategyKey)))
 
 	if c.IsSet(githubReleaseApiTokenNameKey) {
-		gitHubConfig.SetApiTokenName(null.StringFrom(c.String(githubReleaseApiTokenNameKey)))
+		name := c.String(githubReleaseApiTokenNameKey)
+
+		gitHubConfig.SetApiTokenName(&name)
 	} else {
-		gitHubConfig.SetApiTokenName(null.StringFromPtr(nil))
+		gitHubConfig.SetApiTokenName(nil)
 	}
 
 	if err := gitHubConfig.Validate(); err != nil {

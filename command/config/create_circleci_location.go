@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/jmatsu/artifact-transfer/config"
-	"gopkg.in/guregu/null.v3"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -65,21 +64,27 @@ func CreateCircleCIConfig(c *cli.Context) error {
 	circleCIConfig.SetRepoName(c.String(circleciRepoNameKey))
 
 	if c.IsSet(circleciApiTokenNameKey) {
-		circleCIConfig.SetApiTokenName(null.StringFrom(c.String(circleciApiTokenNameKey)))
+		name := c.String(circleciApiTokenNameKey)
+
+		circleCIConfig.SetApiTokenName(&name)
 	} else {
-		circleCIConfig.SetApiTokenName(null.StringFromPtr(nil))
+		circleCIConfig.SetApiTokenName(nil)
 	}
 
 	if c.IsSet(circleciBranchKey) {
-		circleCIConfig.SetBranch(null.StringFrom(c.String(circleciBranchKey)))
+		branch := c.String(circleciBranchKey)
+
+		circleCIConfig.SetBranch(&branch)
 	} else {
-		circleCIConfig.SetBranch(null.StringFromPtr(nil))
+		circleCIConfig.SetBranch(nil)
 	}
 
 	if c.IsSet(circleciFileNamePattern) {
-		circleCIConfig.SetFileNamePattern(null.StringFrom(c.String(circleciFileNamePattern)))
+		pattern := c.String(circleciFileNamePattern)
+
+		circleCIConfig.SetFileNamePattern(&pattern)
 	} else {
-		circleCIConfig.SetFileNamePattern(null.StringFromPtr(nil))
+		circleCIConfig.SetFileNamePattern(nil)
 	}
 
 	circleCIConfig.Validate()
