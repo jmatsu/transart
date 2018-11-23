@@ -28,7 +28,7 @@ func CreateGithubReleaseConfigFlags() []cli.Flag {
 		&cli.StringFlag{
 			Name:    githubReleaseApiTokenNameKey,
 			Usage:   "a name of a environment variable which has an api token of GitHub",
-			Aliases: []string{"token"},
+			Aliases: []string{"token-name"},
 		},
 		&cli.StringFlag{
 			Name:    githubReleaseStrategyKey,

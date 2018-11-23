@@ -18,7 +18,7 @@ func CreateCircleCIConfigFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:    circleciVcsTypeKey,
-			Usage:   "a directory path of artifacts to be saved",
+			Usage:   "a directory path of artifacts to be saved. either of github or bitbucket",
 			Aliases: []string{"v"},
 		},
 		&cli.StringFlag{
@@ -34,7 +34,7 @@ func CreateCircleCIConfigFlags() []cli.Flag {
 		&cli.StringFlag{
 			Name:    circleciApiTokenNameKey,
 			Usage:   "a name of a environment variable which has an api token of CircleCI",
-			Aliases: []string{"token"},
+			Aliases: []string{"token-name"},
 		},
 		&cli.StringFlag{
 			Name:    circleciBranchKey,
