@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"gopkg.in/guregu/null.v3"
+	"regexp"
 )
 
 type (
@@ -59,4 +61,28 @@ func (c LocalConfig) GetPath() string {
 
 func (c LocalConfig) SetPath(v string) {
 	c.values[pathKey] = v
+}
+
+func (c LocalConfig) getFileNamePattern() (string, error) {
+	if v, prs := c.values[fileNamePattern]; prs {
+		if _, err := regexp.Compile(v.(string)); err != nil {
+			return "", err
+		} else {
+			return v.(string), nil
+		}
+	} else {
+		return "", nil
+	}
+}
+
+func (c LocalConfig) GetFileNamePattern() string {
+	if t, err := c.getFileNamePattern(); err != nil {
+		panic(err)
+	} else {
+		return t
+	}
+}
+
+func (c LocalConfig) SetFileNamePattern(v null.String) {
+	c.values[fileNamePattern] = v
 }

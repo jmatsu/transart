@@ -3,38 +3,48 @@ package local
 import (
 	"fmt"
 	"github.com/jmatsu/artifact-transfer/config"
-	"io"
+	"github.com/jmatsu/artifact-transfer/lib"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
-func CopyFile(localConfig config.LocalConfig, srcPath string) error {
-	if s, err := os.Stat(srcPath); err != nil {
-		return err
-	} else if !s.Mode().IsRegular() {
-		return fmt.Errorf("%s is not a regular file", srcPath)
+func CopyFileFrom(localConfig config.LocalConfig, srcPath string) error {
+	if pattern := localConfig.GetFileNamePattern(); pattern != "" {
+		if !regexp.MustCompile(pattern).MatchString(srcPath) {
+			return nil
+		}
 	}
 
-	src, err := os.Open(srcPath)
+	return lib.CopyFile(srcPath, fmt.Sprintf("%s/%s", localConfig.GetPath(), filepath.Base(srcPath)))
+}
+
+func CopyFilesTo(localConfig config.LocalConfig, destDirPath string) error {
+	fs, err := ioutil.ReadDir(localConfig.GetPath())
 
 	if err != nil {
 		return err
 	}
 
-	defer src.Close()
+	for _, f := range fs {
+		lib.ForEachFiles(localConfig.GetPath(), f, func(dirname string, info os.FileInfo) error {
+			srcPath := fmt.Sprintf("%s/%s", dirname, info.Name())
 
-	destPath := fmt.Sprintf("%s/%s", localConfig.GetPath(), filepath.Base(srcPath))
+			if pattern := localConfig.GetFileNamePattern(); pattern != "" {
+				if !regexp.MustCompile(pattern).MatchString(srcPath) {
+					return nil
+				}
+			}
 
-	dest, err := os.Create(destPath)
+			destPath := fmt.Sprintf("%s/%s", destDirPath, info.Name())
 
-	if err != nil {
-		return err
-	}
+			if err := lib.CopyFile(srcPath, destPath); err != nil {
+				return err
+			}
 
-	defer dest.Close()
-
-	if _, err := io.Copy(dest, src); err != nil {
-		return err
+			return nil
+		})
 	}
 
 	return nil

@@ -64,6 +64,12 @@ SUPPORT:
 					Action: configCommand.CreateGithubReleaseConfig,
 					Flags:  configCommand.CreateGithubReleaseConfigFlags(),
 				},
+				{
+					Name:   "local",
+					Usage:  "Create a configuration for local file system",
+					Action: configCommand.CreateLocalConfig,
+					Flags:  configCommand.CreateLocalConfigFlags(),
+				},
 			},
 		},
 		{

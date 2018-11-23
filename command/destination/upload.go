@@ -91,7 +91,7 @@ func uploadToLocal(rootConfig config.RootConfig, localConfig config.LocalConfig)
 
 	for _, f := range fs {
 		lib.ForEachFiles(rootConfig.SaveDir, f, func(dirname string, info os.FileInfo) error {
-			if err := local.CopyFile(localConfig, fmt.Sprintf("%s/%s", dirname, info.Name())); err != nil {
+			if err := local.CopyFileFrom(localConfig, fmt.Sprintf("%s/%s", dirname, info.Name())); err != nil {
 				return err
 			}
 

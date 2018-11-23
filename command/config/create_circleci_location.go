@@ -12,7 +12,7 @@ const (
 	circleciRepoNameKey     = "reponame"
 	circleciBranchKey       = "branch"
 	circleciApiTokenNameKey = "api-token-name"
-	circleciFileNamePattern = "file-name-pattern"
+	circleciFileNamePattern = localFileNamePattern
 )
 
 func CreateCircleCIConfigFlags() []cli.Flag {
