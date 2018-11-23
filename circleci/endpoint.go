@@ -2,8 +2,8 @@ package circleci
 
 import (
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/circleci/entity"
-	"github.com/jmatsu/artifact-transfer/lib"
+	"github.com/jmatsu/transart/circleci/entity"
+	"github.com/jmatsu/transart/lib"
 	"gopkg.in/guregu/null.v3"
 	"net/url"
 )

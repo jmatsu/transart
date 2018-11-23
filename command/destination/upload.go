@@ -2,12 +2,12 @@ package destination
 
 import (
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/command"
-	"github.com/jmatsu/artifact-transfer/config"
-	"github.com/jmatsu/artifact-transfer/github"
-	"github.com/jmatsu/artifact-transfer/github/entity"
-	"github.com/jmatsu/artifact-transfer/lib"
-	"github.com/jmatsu/artifact-transfer/local"
+	"github.com/jmatsu/transart/command"
+	"github.com/jmatsu/transart/config"
+	"github.com/jmatsu/transart/github"
+	"github.com/jmatsu/transart/github/entity"
+	"github.com/jmatsu/transart/lib"
+	"github.com/jmatsu/transart/local"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 	"io/ioutil"

@@ -1,10 +1,10 @@
 package source
 
 import (
-	"github.com/jmatsu/artifact-transfer/circleci"
-	"github.com/jmatsu/artifact-transfer/command"
-	"github.com/jmatsu/artifact-transfer/config"
-	"github.com/jmatsu/artifact-transfer/local"
+	"github.com/jmatsu/transart/circleci"
+	"github.com/jmatsu/transart/command"
+	"github.com/jmatsu/transart/config"
+	"github.com/jmatsu/transart/local"
 )
 
 func NewDownloadAction() command.Actions {

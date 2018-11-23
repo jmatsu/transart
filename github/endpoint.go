@@ -2,7 +2,7 @@ package github
 
 import (
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/lib"
+	"github.com/jmatsu/transart/lib"
 	"strings"
 )
 

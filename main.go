@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/command"
-	configCommand "github.com/jmatsu/artifact-transfer/command/config"
-	"github.com/jmatsu/artifact-transfer/command/destination"
-	"github.com/jmatsu/artifact-transfer/command/source"
-	"github.com/jmatsu/artifact-transfer/config"
-	"github.com/jmatsu/artifact-transfer/version"
+	"github.com/jmatsu/transart/command"
+	configCommand "github.com/jmatsu/transart/command/config"
+	"github.com/jmatsu/transart/command/destination"
+	"github.com/jmatsu/transart/command/source"
+	"github.com/jmatsu/transart/config"
+	"github.com/jmatsu/transart/version"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 	"os"

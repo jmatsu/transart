@@ -3,9 +3,9 @@ package circleci
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/circleci/entity"
-	"github.com/jmatsu/artifact-transfer/config"
-	"github.com/jmatsu/artifact-transfer/lib"
+	"github.com/jmatsu/transart/circleci/entity"
+	"github.com/jmatsu/transart/config"
+	"github.com/jmatsu/transart/lib"
 	"io/ioutil"
 	"os"
 	"path/filepath"

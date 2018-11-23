@@ -1,7 +1,7 @@
 package command
 
 import (
-	"github.com/jmatsu/artifact-transfer/config"
+	"github.com/jmatsu/transart/config"
 )
 
 type Actions struct {

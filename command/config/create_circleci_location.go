@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/jmatsu/artifact-transfer/config"
+	"github.com/jmatsu/transart/config"
 	"gopkg.in/urfave/cli.v2"
 )
 

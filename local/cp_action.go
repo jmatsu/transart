@@ -2,8 +2,8 @@ package local
 
 import (
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/config"
-	"github.com/jmatsu/artifact-transfer/lib"
+	"github.com/jmatsu/transart/config"
+	"github.com/jmatsu/transart/lib"
 	"io/ioutil"
 	"os"
 	"path/filepath"

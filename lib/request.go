@@ -3,7 +3,7 @@ package lib
 import (
 	"bytes"
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/version"
+	"github.com/jmatsu/transart/version"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"

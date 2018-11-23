@@ -3,9 +3,9 @@ package github
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/config"
-	"github.com/jmatsu/artifact-transfer/lib"
-	"github.com/jmatsu/artifact-transfer/github/entity"
+	"github.com/jmatsu/transart/config"
+	"github.com/jmatsu/transart/lib"
+	"github.com/jmatsu/transart/github/entity"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/url"
