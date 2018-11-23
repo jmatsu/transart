@@ -1,8 +1,7 @@
 package config
 
 import (
-	"github.com/jmatsu/artifact-transfer/circleci"
-	"github.com/jmatsu/artifact-transfer/core"
+	"github.com/jmatsu/artifact-transfer/config"
 	"gopkg.in/guregu/null.v3"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -52,41 +51,41 @@ func CreateCircleCIConfig(c *cli.Context) error {
 		return err
 	}
 
-	lc := core.LocationConfig{}
+	lc := config.LocationConfig{}
 
-	lc.SetLocationType(core.CircleCI)
-	config, err := circleci.NewConfig(lc)
+	lc.SetLocationType(config.CircleCI)
+	circleCIConfig, err := config.NewCircleCIConfig(lc)
 
 	if err != nil {
 		return err
 	}
 
-	config.SetVcsType(circleci.VcsType(c.String(circleciVcsTypeKey)))
-	config.SetUsername(c.String(circleciUsernameKey))
-	config.SetRepoName(c.String(circleciRepoNameKey))
+	circleCIConfig.SetVcsType(config.VcsType(c.String(circleciVcsTypeKey)))
+	circleCIConfig.SetUsername(c.String(circleciUsernameKey))
+	circleCIConfig.SetRepoName(c.String(circleciRepoNameKey))
 
 	if c.IsSet(circleciApiTokenNameKey) {
-		config.SetApiTokenName(null.StringFrom(c.String(circleciApiTokenNameKey)))
+		circleCIConfig.SetApiTokenName(null.StringFrom(c.String(circleciApiTokenNameKey)))
 	} else {
-		config.SetApiTokenName(null.StringFromPtr(nil))
+		circleCIConfig.SetApiTokenName(null.StringFromPtr(nil))
 	}
 
 	if c.IsSet(circleciBranchKey) {
-		config.SetBranch(null.StringFrom(c.String(circleciBranchKey)))
+		circleCIConfig.SetBranch(null.StringFrom(c.String(circleciBranchKey)))
 	} else {
-		config.SetBranch(null.StringFromPtr(nil))
+		circleCIConfig.SetBranch(null.StringFromPtr(nil))
 	}
 
 	if c.IsSet(circleciFileNamePattern) {
-		config.SetFileNamePattern(null.StringFrom(c.String(circleciFileNamePattern)))
+		circleCIConfig.SetFileNamePattern(null.StringFrom(c.String(circleciFileNamePattern)))
 	} else {
-		config.SetFileNamePattern(null.StringFromPtr(nil))
+		circleCIConfig.SetFileNamePattern(null.StringFromPtr(nil))
 	}
 
-	config.Validate()
+	circleCIConfig.Validate()
 
-	if config.Err != nil {
-		return config.Err
+	if circleCIConfig.Err != nil {
+		return circleCIConfig.Err
 	}
 
 	switch true {

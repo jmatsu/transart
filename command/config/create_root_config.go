@@ -2,7 +2,7 @@ package config
 
 import (
 	"errors"
-	"github.com/jmatsu/artifact-transfer/core"
+	"github.com/jmatsu/artifact-transfer/config"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -12,7 +12,7 @@ const (
 )
 
 func CreateRootConfig(c *cli.Context) error {
-	if core.ExistsRootConfig() {
+	if config.ExistsRootConfig() {
 		if !c.Bool(forceOptionKey) {
 			return errors.New("a config file already exists. cannot overwrite without --force option")
 		}
@@ -30,18 +30,18 @@ func CreateRootConfig(c *cli.Context) error {
 		return errors.New("empty directory name is not allowed")
 	}
 
-	config := core.RootConfig{
+	rootConfig := config.RootConfig{
 		Version: 1,
 		SaveDir: saveDir,
-		Source: core.SourceConfig{
-			Locations: []core.LocationConfig{},
+		Source: config.SourceConfig{
+			Locations: []config.LocationConfig{},
 		},
-		Destination: core.DestinationConfig{
-			Location: core.LocationConfig{},
+		Destination: config.DestinationConfig{
+			Location: config.LocationConfig{},
 		},
 	}
 
-	return config.Save()
+	return rootConfig.Save()
 }
 
 func CreateRootConfigFlags() []cli.Flag {

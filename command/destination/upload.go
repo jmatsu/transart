@@ -3,10 +3,11 @@ package destination
 import (
 	"fmt"
 	"github.com/jmatsu/artifact-transfer/command"
-	"github.com/jmatsu/artifact-transfer/core"
+	"github.com/jmatsu/artifact-transfer/config"
 	"github.com/jmatsu/artifact-transfer/github"
-	"github.com/jmatsu/artifact-transfer/github/action"
 	"github.com/jmatsu/artifact-transfer/github/entity"
+	"github.com/jmatsu/artifact-transfer/lib"
+	"github.com/jmatsu/artifact-transfer/local"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
 	"io/ioutil"
@@ -15,80 +16,87 @@ import (
 
 func NewUploadAction(c cli.Context) command.Actions {
 	return command.Actions{
-		GitHubRelease: func(rootConfig core.RootConfig, config github.Config) error {
-			if err := config.Validate(); err != nil {
-				return err
-			}
+		GitHubRelease: uploadToGithubRelease,
+		Local:         uploadToLocal,
+	}
+}
 
-			var releaseToBeUpdated *entity.Release
+func uploadToGithubRelease(rootConfig config.RootConfig, gitHubConfig config.GitHubConfig) error {
+	if err := gitHubConfig.Validate(); err != nil {
+		return err
+	}
 
-			switch config.GetStrategy() {
-			case github.Create:
-				if release, err := action.CreateDraftRelease(config); err == nil {
-					releaseToBeUpdated = &release
-				} else {
-					return err
-				}
-			case github.Draft:
-				if release, err := action.GetDraftRelease(config); err == nil {
-					releaseToBeUpdated = &release
-				} else {
-					return err
-				}
-			case github.DraftOrCreate:
-				if release, err := action.GetDraftRelease(config); err == nil {
-					releaseToBeUpdated = &release
-				} else if release, err := action.CreateDraftRelease(config); err == nil {
-					releaseToBeUpdated = &release
-				} else {
-					return err
-				}
-			}
+	var releaseToBeUpdated *entity.Release
 
-			if releaseToBeUpdated == nil {
-				panic(fmt.Errorf("implementation error"))
-			}
+	switch gitHubConfig.GetStrategy() {
+	case config.Create:
+		if release, err := github.CreateDraftRelease(gitHubConfig); err == nil {
+			releaseToBeUpdated = &release
+		} else {
+			return err
+		}
+	case config.Draft:
+		if release, err := github.GetDraftRelease(gitHubConfig); err == nil {
+			releaseToBeUpdated = &release
+		} else {
+			return err
+		}
+	case config.DraftOrCreate:
+		if release, err := github.GetDraftRelease(gitHubConfig); err == nil {
+			releaseToBeUpdated = &release
+		} else if release, err := github.CreateDraftRelease(gitHubConfig); err == nil {
+			releaseToBeUpdated = &release
+		} else {
+			return err
+		}
+	}
 
-			fs, err := ioutil.ReadDir(".transart")
+	if releaseToBeUpdated == nil {
+		panic(fmt.Errorf("implementation error"))
+	}
+
+	fs, err := ioutil.ReadDir(rootConfig.SaveDir)
+
+	if err != nil {
+		return err
+	}
+
+	for _, f := range fs {
+		lib.ForEachFiles(rootConfig.SaveDir, f, func(dirname string, info os.FileInfo) error {
+			asset, err := github.UploadToRelease(gitHubConfig, *releaseToBeUpdated, fmt.Sprintf("%s/%s", dirname, info.Name()))
 
 			if err != nil {
 				return err
 			}
 
-			for _, f := range fs {
-				recursive(rootConfig.SaveDir, f, func(dirname string, info os.FileInfo) error {
-					asset, err := action.UploadToRelease(config, *releaseToBeUpdated, fmt.Sprintf("%s/%s", dirname, info.Name()))
+			logrus.Debugln(asset.Name)
 
-					if err != nil {
-						return err
-					}
+			return nil
+		})
+	}
 
-					logrus.Debugln(asset.Name)
+	return nil
+}
 
-					return nil
-				})
+func uploadToLocal(rootConfig config.RootConfig, localConfig config.LocalConfig) error {
+	if err := localConfig.Validate(); err != nil {
+		return err
+	}
+
+	fs, err := ioutil.ReadDir(rootConfig.SaveDir)
+
+	if err != nil {
+		return err
+	}
+
+	for _, f := range fs {
+		lib.ForEachFiles(rootConfig.SaveDir, f, func(dirname string, info os.FileInfo) error {
+			if err := local.CopyFile(localConfig, fmt.Sprintf("%s/%s", dirname, info.Name())); err != nil {
+				return err
 			}
 
 			return nil
-		},
-	}
-}
-
-func recursive(dirname string, f os.FileInfo, action func(dirname string, info os.FileInfo) error) error {
-	if f.IsDir() {
-		fs, err := ioutil.ReadDir(fmt.Sprintf("%s/%s", dirname, f.Name()))
-
-		if err != nil {
-			return err
-		}
-
-		for _, f := range fs {
-			if err := recursive(fmt.Sprintf("%s/%s", dirname, f.Name()), f, action); err != nil {
-				return err
-			}
-		}
-	} else if err := action(dirname, f); err != nil {
-		return err
+		})
 	}
 
 	return nil

@@ -1,44 +1,36 @@
-package github
+package config
 
 import (
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/core"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/guregu/null.v3"
 	"os"
 )
 
 type (
-	Strategy string
+	GitHubReleaseCreationStrategy string
 
-	Config struct {
-		values core.LocationConfig
+	GitHubConfig struct {
+		values LocationConfig
 		Err    error
 	}
 )
 
 const (
-	usernameKey     = "username"
-	repoNameKey     = "reponame"
-	apiTokenNameKey = "api-token-name"
-	strategyKey     = "strategy"
+	Draft         GitHubReleaseCreationStrategy = "draft"
+	DraftOrCreate                               = "draft-or-create"
+	Create                                      = "create"
 )
 
-const (
-	Draft         Strategy = "draft"
-	DraftOrCreate          = "draft-or-create"
-	Create                 = "create"
-)
-
-func isStrategy(s string) bool {
-	strategies := []Strategy{
+func isGitHubReleaseCreationStrategy(s string) bool {
+	strategies := []GitHubReleaseCreationStrategy{
 		Draft,
 		DraftOrCreate,
 		Create,
 	}
 
 	for _, strategy := range strategies {
-		if strategy == Strategy(s) {
+		if strategy == GitHubReleaseCreationStrategy(s) {
 			return true
 		}
 	}
@@ -46,8 +38,8 @@ func isStrategy(s string) bool {
 	return false
 }
 
-func NewConfig(lc core.LocationConfig) (*Config, error) {
-	if t, err := lc.GetLocationType(); err != nil || t != core.GitHubRelease {
+func NewGitHubConfig(lc LocationConfig) (*GitHubConfig, error) {
+	if t, err := lc.GetLocationType(); err != nil || t != GitHubRelease {
 		if err == nil {
 			err = fmt.Errorf("location type is not for github releases so the caller is wrong")
 		}
@@ -55,14 +47,14 @@ func NewConfig(lc core.LocationConfig) (*Config, error) {
 		return nil, err
 	}
 
-	config := &Config{
+	config := &GitHubConfig{
 		values: lc,
 	}
 
 	return config, nil
 }
 
-func (c Config) setError(_ interface{}, err error) {
+func (c GitHubConfig) setError(_ interface{}, err error) {
 	if c.Err != nil {
 		return
 	}
@@ -70,7 +62,7 @@ func (c Config) setError(_ interface{}, err error) {
 	c.Err = err
 }
 
-func (c Config) Validate() error {
+func (c GitHubConfig) Validate() error {
 	c.setError(c.getUsername())
 	c.setError(c.getRepoName())
 	c.setError(c.getStrategy())
@@ -78,7 +70,7 @@ func (c Config) Validate() error {
 	return c.Err
 }
 
-func (c Config) getUsername() (string, error) {
+func (c GitHubConfig) getUsername() (string, error) {
 	if v, prs := c.values[usernameKey]; prs {
 		return v.(string), nil
 	}
@@ -86,7 +78,7 @@ func (c Config) getUsername() (string, error) {
 	return "", fmt.Errorf("%s is missinge\n", usernameKey)
 }
 
-func (c Config) GetUsername() string {
+func (c GitHubConfig) GetUsername() string {
 	if t, err := c.getUsername(); err != nil {
 		panic(err)
 	} else {
@@ -94,11 +86,11 @@ func (c Config) GetUsername() string {
 	}
 }
 
-func (c Config) SetUsername(v string) {
+func (c GitHubConfig) SetUsername(v string) {
 	c.values[usernameKey] = v
 }
 
-func (c Config) getRepoName() (string, error) {
+func (c GitHubConfig) getRepoName() (string, error) {
 	if v, prs := c.values[repoNameKey]; prs {
 		return v.(string), nil
 	}
@@ -106,7 +98,7 @@ func (c Config) getRepoName() (string, error) {
 	return "", fmt.Errorf("%s is missing\n", repoNameKey)
 }
 
-func (c Config) GetRepoName() string {
+func (c GitHubConfig) GetRepoName() string {
 	if t, err := c.getRepoName(); err != nil {
 		panic(err)
 	} else {
@@ -114,11 +106,11 @@ func (c Config) GetRepoName() string {
 	}
 }
 
-func (c Config) SetRepoName(v string) {
+func (c GitHubConfig) SetRepoName(v string) {
 	c.values[repoNameKey] = v
 }
 
-func (c Config) GetApiToken() null.String {
+func (c GitHubConfig) GetApiToken() null.String {
 	if v, prs := c.values[apiTokenNameKey]; prs {
 		if v, ok := os.LookupEnv(v.(string)); ok {
 			return null.StringFrom(v)
@@ -130,7 +122,7 @@ func (c Config) GetApiToken() null.String {
 	}
 }
 
-func (c Config) SetApiTokenName(v null.String) {
+func (c GitHubConfig) SetApiTokenName(v null.String) {
 	if v.Valid {
 		c.values[apiTokenNameKey] = v
 	} else {
@@ -138,13 +130,13 @@ func (c Config) SetApiTokenName(v null.String) {
 	}
 }
 
-func (c Config) getStrategy() (*Strategy, error) {
+func (c GitHubConfig) getStrategy() (*GitHubReleaseCreationStrategy, error) {
 	if v, prs := c.values[strategyKey]; prs {
-		if !isStrategy(v.(string)) {
+		if !isGitHubReleaseCreationStrategy(v.(string)) {
 			return nil, fmt.Errorf("%s is not a valid strategy", v)
 		}
 
-		s := Strategy(v.(string))
+		s := GitHubReleaseCreationStrategy(v.(string))
 
 		return &s, nil
 	}
@@ -152,7 +144,7 @@ func (c Config) getStrategy() (*Strategy, error) {
 	return nil, fmt.Errorf("%s is missing\n", strategyKey)
 }
 
-func (c Config) GetStrategy() Strategy {
+func (c GitHubConfig) GetStrategy() GitHubReleaseCreationStrategy {
 	if s, err := c.getStrategy(); err != nil {
 		panic(err)
 	} else {
@@ -160,6 +152,6 @@ func (c Config) GetStrategy() Strategy {
 	}
 }
 
-func (c Config) SetStrategy(s Strategy) {
+func (c GitHubConfig) SetStrategy(s GitHubReleaseCreationStrategy) {
 	c.values[strategyKey] = string(s)
 }

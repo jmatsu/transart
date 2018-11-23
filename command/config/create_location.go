@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/core"
+	"github.com/jmatsu/artifact-transfer/config"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -26,10 +26,10 @@ func CreateAddLocationFlags() []cli.Flag {
 	}
 }
 
-func commonVerifyForAddingConfig(c *cli.Context) (*core.RootConfig, error) {
+func commonVerifyForAddingConfig(c *cli.Context) (*config.RootConfig, error) {
 	if !c.IsSet(sourceOptionKey) && !c.IsSet(destinationOptionKey) {
 		return nil, fmt.Errorf("either of --%s or --%s is required", sourceOptionKey, destinationOptionKey)
 	}
 
-	return core.LoadRootConfig()
+	return config.LoadRootConfig()
 }

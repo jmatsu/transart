@@ -1,8 +1,7 @@
 package config
 
 import (
-	"github.com/jmatsu/artifact-transfer/core"
-	"github.com/jmatsu/artifact-transfer/github"
+	"github.com/jmatsu/artifact-transfer/config"
 	"gopkg.in/guregu/null.v3"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -42,26 +41,26 @@ func CreateGithubReleaseConfig(c *cli.Context) error {
 		return err
 	}
 
-	lc := core.LocationConfig{}
+	lc := config.LocationConfig{}
 
-	lc.SetLocationType(core.GitHubRelease)
-	config, err := github.NewConfig(lc)
+	lc.SetLocationType(config.GitHubRelease)
+	gitHubConfig, err := config.NewGitHubConfig(lc)
 
 	if err != nil {
 		return err
 	}
 
-	config.SetUsername(c.String(githubReleaseUsernameKey))
-	config.SetRepoName(c.String(githubReleaseRepoNameKey))
-	config.SetStrategy(github.Strategy(c.String(githubReleaseStrategyKey)))
+	gitHubConfig.SetUsername(c.String(githubReleaseUsernameKey))
+	gitHubConfig.SetRepoName(c.String(githubReleaseRepoNameKey))
+	gitHubConfig.SetStrategy(config.GitHubReleaseCreationStrategy(c.String(githubReleaseStrategyKey)))
 
 	if c.IsSet(githubReleaseApiTokenNameKey) {
-		config.SetApiTokenName(null.StringFrom(c.String(githubReleaseApiTokenNameKey)))
+		gitHubConfig.SetApiTokenName(null.StringFrom(c.String(githubReleaseApiTokenNameKey)))
 	} else {
-		config.SetApiTokenName(null.StringFromPtr(nil))
+		gitHubConfig.SetApiTokenName(null.StringFromPtr(nil))
 	}
 
-	if err := config.Validate(); err != nil {
+	if err := gitHubConfig.Validate(); err != nil {
 		return err
 	}
 

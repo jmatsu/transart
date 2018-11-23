@@ -1,27 +1,27 @@
-package action
+package circleci
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/circleci"
 	"github.com/jmatsu/artifact-transfer/circleci/entity"
-	"github.com/jmatsu/artifact-transfer/core"
+	"github.com/jmatsu/artifact-transfer/config"
+	"github.com/jmatsu/artifact-transfer/lib"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
 )
 
-func GetArtifacts(config circleci.Config, buildNum uint) ([]entity.Artifact, error) {
-	if err := config.Validate(); err != nil {
+func GetArtifacts(circleCIConfig config.CircleCIConfig, buildNum uint) ([]entity.Artifact, error) {
+	if err := circleCIConfig.Validate(); err != nil {
 		return nil, err
 	}
 
 	var artifacts []entity.Artifact
 
-	endpoint := circleci.ArtifactListEndpoint(config.GetVcsType(), config.GetUsername(), config.GetRepoName(), buildNum)
+	endpoint := ArtifactListEndpoint(string(circleCIConfig.GetVcsType()), circleCIConfig.GetUsername(), circleCIConfig.GetRepoName(), buildNum)
 
-	if bytes, err := core.GetRequest(endpoint, circleci.NewToken(config.GetApiToken()), nil); err != nil {
+	if bytes, err := lib.GetRequest(endpoint, NewToken(circleCIConfig.GetApiToken()), nil); err != nil {
 		return nil, err
 	} else if err := json.Unmarshal(bytes, &artifacts); err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func GetArtifacts(config circleci.Config, buildNum uint) ([]entity.Artifact, err
 
 	var regex *regexp.Regexp
 
-	if pattern := config.GetFileNamePattern(); pattern != "" {
+	if pattern := circleCIConfig.GetFileNamePattern(); pattern != "" {
 		regex = regexp.MustCompile(pattern)
 	}
 
@@ -50,13 +50,13 @@ func GetArtifacts(config circleci.Config, buildNum uint) ([]entity.Artifact, err
 	return filtered, nil
 }
 
-func GetArtifactsFindFirst(config circleci.Config) ([]entity.Artifact, error) {
-	if err := config.Validate(); err != nil {
+func GetArtifactsFindFirst(circleCIConfig config.CircleCIConfig) ([]entity.Artifact, error) {
+	if err := circleCIConfig.Validate(); err != nil {
 		return nil, err
 	}
 
 	// /latest/artifacts doesn't filter `has_artifacts` so it doesn't work as expected if workflow is enabled.
-	jobs, err := getJobInfos(config)
+	jobs, err := getJobInfos(circleCIConfig)
 
 	if err != nil {
 		return nil, err
@@ -67,16 +67,16 @@ func GetArtifactsFindFirst(config circleci.Config) ([]entity.Artifact, error) {
 			continue
 		}
 
-		return GetArtifacts(config, job.BuildNum)
+		return GetArtifacts(circleCIConfig, job.BuildNum)
 	}
 
 	return nil, fmt.Errorf("Not found jobs which have at least one artifacts and had finished\n")
 }
 
-func DownloadArtifact(rootConfig core.RootConfig, config circleci.Config, artifact entity.Artifact) error {
-	endpoint := circleci.DownloadArtifactEndpoint(artifact)
+func DownloadArtifact(rootConfig config.RootConfig, circleCIConfig config.CircleCIConfig, artifact entity.Artifact) error {
+	endpoint := DownloadArtifactEndpoint(artifact)
 
-	if bytes, err := core.GetRequest(endpoint, circleci.NewToken(config.GetApiToken()), nil); err != nil {
+	if bytes, err := lib.GetRequest(endpoint, NewToken(circleCIConfig.GetApiToken()), nil); err != nil {
 		return err
 	} else {
 		filename := filepath.Base(artifact.Path)
@@ -86,7 +86,7 @@ func DownloadArtifact(rootConfig core.RootConfig, config circleci.Config, artifa
 				return err
 			}
 		} else if !f.IsDir() {
-			return fmt.Errorf(".transart file already exists")
+			return fmt.Errorf("%s file already exists", rootConfig.SaveDir)
 		}
 
 		return ioutil.WriteFile(fmt.Sprintf("%s/%s", rootConfig.SaveDir, filename), bytes, 0644)

@@ -1,4 +1,4 @@
-package core
+package config
 
 import (
 	"fmt"
@@ -38,20 +38,18 @@ const (
 	Local                      = "local"
 )
 
-const LocationTypeKey = "type"
-
 func (c LocationConfig) GetLocationType() (LocationType, error) {
-	if v, prs := c[LocationTypeKey]; prs {
+	if v, prs := c[locationTypeKey]; prs {
 		if v, ok := v.(string); ok {
 			return NewLocationType(v)
 		}
 	}
 
-	return LocationType(""), fmt.Errorf("%s is missing or an invalid value\n", LocationTypeKey)
+	return LocationType(""), fmt.Errorf("%s is missing or an invalid value\n", locationTypeKey)
 }
 
 func (c LocationConfig) SetLocationType(t LocationType) {
-	c[LocationTypeKey] = t
+	c[locationTypeKey] = t
 }
 
 func NewLocationType(v string) (LocationType, error) {

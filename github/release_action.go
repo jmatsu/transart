@@ -1,10 +1,10 @@
-package action
+package github
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/core"
-	"github.com/jmatsu/artifact-transfer/github"
+	"github.com/jmatsu/artifact-transfer/config"
+	"github.com/jmatsu/artifact-transfer/lib"
 	"github.com/jmatsu/artifact-transfer/github/entity"
 	"github.com/pkg/errors"
 	"io/ioutil"
@@ -12,16 +12,16 @@ import (
 	"path/filepath"
 )
 
-func getReleases(config github.Config) ([]entity.Release, error) {
-	if err := config.Validate(); err != nil {
+func getReleases(gitHubConfig config.GitHubConfig) ([]entity.Release, error) {
+	if err := gitHubConfig.Validate(); err != nil {
 		return nil, err
 	}
 
 	var releases []entity.Release
 
-	apiEndpoint := github.ReleaseListEndpoint(config.GetUsername(), config.GetRepoName())
+	apiEndpoint := ReleaseListEndpoint(gitHubConfig.GetUsername(), gitHubConfig.GetRepoName())
 
-	if bytes, err := core.GetRequest(apiEndpoint, github.NewToken(config.GetApiToken()), nil); err != nil {
+	if bytes, err := lib.GetRequest(apiEndpoint, NewToken(gitHubConfig.GetApiToken()), nil); err != nil {
 		return nil, err
 	} else if err := json.Unmarshal(bytes, &releases); err != nil {
 		err = errors.Wrap(err, "an error happened while parsing the response as json")
@@ -31,14 +31,14 @@ func getReleases(config github.Config) ([]entity.Release, error) {
 	return releases, nil
 }
 
-func GetDraftRelease(config github.Config) (entity.Release, error) {
+func GetDraftRelease(gitHubConfig config.GitHubConfig) (entity.Release, error) {
 	var release entity.Release
 
-	if err := config.Validate(); err != nil {
+	if err := gitHubConfig.Validate(); err != nil {
 		return release, err
 	}
 
-	releases, err := getReleases(config)
+	releases, err := getReleases(gitHubConfig)
 
 	if err != nil {
 		return release, err
@@ -55,8 +55,8 @@ func GetDraftRelease(config github.Config) (entity.Release, error) {
 	return release, fmt.Errorf("draft release is not found\n")
 }
 
-func CreateDraftRelease(config github.Config) (release entity.Release, err error) {
-	err = config.Validate()
+func CreateDraftRelease(gitHubConfig config.GitHubConfig) (release entity.Release, err error) {
+	err = gitHubConfig.Validate()
 
 	if err != nil {
 		return
@@ -78,9 +78,9 @@ func CreateDraftRelease(config github.Config) (release entity.Release, err error
 		return
 	}
 
-	apiEndpoint := github.CreateReleaseEndpoint(config.GetUsername(), config.GetRepoName())
+	apiEndpoint := CreateReleaseEndpoint(gitHubConfig.GetUsername(), gitHubConfig.GetRepoName())
 
-	bytes, err := core.PostRequest(apiEndpoint, github.NewToken(config.GetApiToken()), nil, bodyBytes)
+	bytes, err := lib.PostRequest(apiEndpoint, NewToken(gitHubConfig.GetApiToken()), nil, bodyBytes)
 
 	if err != nil {
 		return
@@ -95,14 +95,14 @@ func CreateDraftRelease(config github.Config) (release entity.Release, err error
 	return
 }
 
-func UploadToRelease(config github.Config, release entity.Release, path string) (asset entity.Asset, err error) {
-	err = config.Validate()
+func UploadToRelease(gitHubConfig config.GitHubConfig, release entity.Release, path string) (asset entity.Asset, err error) {
+	err = gitHubConfig.Validate()
 
 	if err != nil {
 		return
 	}
 
-	if !config.GetApiToken().Valid {
+	if !gitHubConfig.GetApiToken().Valid {
 		err = fmt.Errorf("api key is required\n")
 		return
 	}
@@ -116,9 +116,9 @@ func UploadToRelease(config github.Config, release entity.Release, path string) 
 	params := url.Values{}
 	params.Set("name", filepath.Base(path))
 
-	endpoint := github.UploadReleaseEndpoint(release.UploadUrlInHypermedia)
+	endpoint := UploadReleaseEndpoint(release.UploadUrlInHypermedia)
 
-	bytes, err = core.PostRequest(endpoint, github.NewToken(config.GetApiToken()), params, bytes)
+	bytes, err = lib.PostRequest(endpoint, NewToken(gitHubConfig.GetApiToken()), params, bytes)
 
 	if err != nil {
 		return

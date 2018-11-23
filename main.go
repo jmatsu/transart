@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/jmatsu/artifact-transfer/command/config"
+	configCommand "github.com/jmatsu/artifact-transfer/command/config"
 	"github.com/jmatsu/artifact-transfer/command/destination"
 	"github.com/jmatsu/artifact-transfer/command/source"
-	"github.com/jmatsu/artifact-transfer/core"
+	"github.com/jmatsu/artifact-transfer/config"
 	"github.com/jmatsu/artifact-transfer/version"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2"
@@ -44,25 +44,25 @@ SUPPORT:
 		{
 			Name:   "init",
 			Usage:  "Create an initial root configuration file",
-			Action: config.CreateRootConfig,
-			Flags:  config.CreateRootConfigFlags(),
+			Action: configCommand.CreateRootConfig,
+			Flags:  configCommand.CreateRootConfigFlags(),
 		},
 		{
 			Name:  "add",
 			Usage: "Add a new configuration of a location",
-			Flags: config.CreateAddLocationFlags(),
+			Flags: configCommand.CreateAddLocationFlags(),
 			Subcommands: []*cli.Command{
 				{
 					Name:   "circleci",
 					Usage:  "Create a configuration for CircleCI",
-					Action: config.CreateCircleCIConfig,
-					Flags:  config.CreateCircleCIConfigFlags(),
+					Action: configCommand.CreateCircleCIConfig,
+					Flags:  configCommand.CreateCircleCIConfigFlags(),
 				},
 				{
 					Name:   "github-release",
 					Usage:  "Create a configuration for GitHub Release",
-					Action: config.CreateGithubReleaseConfig,
-					Flags:  config.CreateGithubReleaseConfigFlags(),
+					Action: configCommand.CreateGithubReleaseConfig,
+					Flags:  configCommand.CreateGithubReleaseConfigFlags(),
 				},
 			},
 		},
@@ -70,7 +70,7 @@ SUPPORT:
 			Name:  "transfer",
 			Usage: "Download artifacts and assets from sources, and upload them to the destination",
 			Action: func(context *cli.Context) error {
-				rootConfig, err := core.LoadRootConfig()
+				rootConfig, err := config.LoadRootConfig()
 
 				if err != nil {
 					return err
@@ -91,7 +91,7 @@ SUPPORT:
 			Name:  "download",
 			Usage: "Download artifacts and assets from sources",
 			Action: func(context *cli.Context) error {
-				rootConfig, err := core.LoadRootConfig()
+				rootConfig, err := config.LoadRootConfig()
 
 				if err != nil {
 					return err
@@ -104,7 +104,7 @@ SUPPORT:
 			Name:  "upload",
 			Usage: "Upload artifacts and assets the destination",
 			Action: func(context *cli.Context) error {
-				rootConfig, err := core.LoadRootConfig()
+				rootConfig, err := config.LoadRootConfig()
 
 				if err != nil {
 					return err

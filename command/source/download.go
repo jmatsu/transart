@@ -2,22 +2,21 @@ package source
 
 import (
 	"github.com/jmatsu/artifact-transfer/circleci"
-	"github.com/jmatsu/artifact-transfer/circleci/action"
 	"github.com/jmatsu/artifact-transfer/command"
-	"github.com/jmatsu/artifact-transfer/core"
+	"github.com/jmatsu/artifact-transfer/config"
 )
 
 func NewDownloadAction() command.Actions {
 	return command.Actions{
-		CircleCI: func(rootConfig core.RootConfig, config circleci.Config) error {
-			artifacts, err := action.GetArtifactsFindFirst(config)
+		CircleCI: func(rootConfig config.RootConfig, circleCIConfig config.CircleCIConfig) error {
+			artifacts, err := circleci.GetArtifactsFindFirst(circleCIConfig)
 
 			if err != nil {
 				return err
 			}
 
 			for _, artifact := range artifacts {
-				if err := action.DownloadArtifact(rootConfig, config, artifact); err != nil {
+				if err := circleci.DownloadArtifact(rootConfig, circleCIConfig, artifact); err != nil {
 					return err
 				}
 			}
