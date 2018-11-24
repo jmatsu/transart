@@ -37,7 +37,12 @@ jobs:
     steps:
       - checkout
       - run: *download_dep
-      - run: curl -sL https://git.io/goreleaser | bash
+      - run:
+          name: Run snapshot goreleaser
+          command: |
+            curl -sLo goreleaser https://git.io/goreleaser
+            chmod +x goreleaser
+            ./goreleaser --snapshot
 
 workflows:
   version: 2
