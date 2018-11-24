@@ -90,3 +90,4 @@ transart
 artifact-transfer
 .transart.yml
 .transart/
+goreleaser
