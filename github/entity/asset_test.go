@@ -8,7 +8,7 @@ import (
 )
 
 func TestAsset(t *testing.T) {
-	bytes := []byte("{\"id\": 10, \"state\": \"this is a state\", \"name\": \"this is a name\"}")
+	bytes := []byte("{\"id\": 10, \"state\": \"this is a state\", \"name\": \"this is a name\", \"size\": 1}")
 
 	asset := Asset{}
 
