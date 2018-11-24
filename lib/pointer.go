@@ -12,6 +12,29 @@ func isNil(v interface{}) bool {
 }
 
 func IsZeroOrNil(v interface{}) bool {
+	if isNil(v) {
+		return true
+	}
+
+	zero := reflect.Zero(reflect.TypeOf(v))
+	value := reflect.ValueOf(v)
+
+	// only required values for now
+	switch zero.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return zero.Int() == value.Int()
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return zero.Uint() == value.Uint()
+	case reflect.String:
+		return zero.String() == value.String()
+	case reflect.Bool:
+		return zero.Bool() == value.Bool()
+	case reflect.Interface:
+		return zero.Interface() == value.Interface()
+	}
+
+	reflect.ValueOf(v).Interface()
+
 	return isNil(v) || reflect.Zero(reflect.TypeOf(v)) == reflect.ValueOf(v)
 }
 
