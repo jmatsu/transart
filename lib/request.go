@@ -28,20 +28,46 @@ type Token interface {
 	ToParam() url.Values
 }
 
-func MergeParams(dest url.Values, src url.Values) {
-	if src == nil || dest == nil {
-		return
+func MergeParams(lhs url.Values, rhs url.Values) url.Values {
+	if lhs == nil && rhs == nil {
+		return url.Values{}
+	} else if lhs == nil {
+		return rhs
+	} else if rhs == nil {
+		return lhs
 	}
 
-	for key, values := range src {
-		for _, value := range values {
-			if dest[key] == nil {
-				dest.Set(key, value)
-			} else {
-				dest.Add(key, value)
+	result := url.Values{}
+
+	for key, values := range lhs {
+		if len(values) != 0 {
+			for _, value := range values {
+				if result[key] == nil {
+					result.Set(key, value)
+				} else {
+					result.Add(key, value)
+				}
 			}
+		} else {
+			result[key] = []string{}
 		}
 	}
+
+	for key, values := range rhs {
+		if len(values) != 0 {
+			for _, value := range values {
+				if result[key] == nil {
+					result.Set(key, value)
+				} else {
+					result.Add(key, value)
+				}
+			}
+		} else {
+			result[key] = []string{}
+		}
+	}
+
+	return result
 }
 
 func GetRequest(endpoint Endpoint, token Token, values url.Values) ([]byte, error) {
@@ -50,7 +76,7 @@ func GetRequest(endpoint Endpoint, token Token, values url.Values) ([]byte, erro
 	}
 
 	if endpoint.AuthType == ParameterAuth {
-		MergeParams(values, token.ToParam())
+		values = MergeParams(values, token.ToParam())
 	}
 
 	query := values.Encode()
@@ -68,7 +94,7 @@ func GetRequest(endpoint Endpoint, token Token, values url.Values) ([]byte, erro
 	if endpoint.Accept != "" {
 		req.Header.Set("Accept", endpoint.Accept)
 	} else {
-		req.Header.Set("Accept", "application/json")
+		panic("accept header is not found")
 	}
 
 	req.Header.Set("User-Agent", version.UserAgent())
@@ -98,7 +124,7 @@ func PostRequest(endpoint Endpoint, token Token, values url.Values, body []byte)
 	}
 
 	if endpoint.AuthType == ParameterAuth {
-		MergeParams(values, token.ToParam())
+		values = MergeParams(values, token.ToParam())
 	}
 
 	query := values.Encode()

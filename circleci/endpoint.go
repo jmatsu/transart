@@ -14,7 +14,7 @@ var CompletedParam = url.Values(
 	})
 
 func baseApiUrl(vcs string, username string, repoName string) string {
-	return fmt.Sprintf("https://circleci.com/api/v1.1/project/%s/%s/%s", vcs, username, repoName)
+	return fmt.Sprintf("https://circleci.com/api/v1.1/project/%s/%s/%s", vcs, url.PathEscape(username), url.PathEscape(repoName))
 }
 
 func JobInfoListEndpoint(vcs string, username string, repoName string, branch null.String) lib.Endpoint {
@@ -29,6 +29,7 @@ func JobInfoListEndpoint(vcs string, username string, repoName string, branch nu
 	return lib.Endpoint{
 		Url:      uri,
 		AuthType: lib.HeaderAuth,
+		Accept:   "application/json",
 	}
 }
 
@@ -36,6 +37,7 @@ func ArtifactListEndpoint(vcs string, username string, repoName string, buildNum
 	return lib.Endpoint{
 		Url:      fmt.Sprintf("%s/%d/artifacts", baseApiUrl(vcs, username, repoName), buildNum),
 		AuthType: lib.HeaderAuth,
+		Accept:   "application/json",
 	}
 }
 

@@ -6,7 +6,6 @@ import (
 	"gopkg.in/guregu/null.v3"
 	"net/http"
 	"net/url"
-	"unsafe"
 )
 
 type Token struct {
@@ -25,8 +24,7 @@ func NewToken(t null.String) *Token {
 
 func (t *Token) SetToHeader(request *http.Request) {
 	if t != nil {
-		bytes := *(*[]byte)(unsafe.Pointer(&t.token))
-		token := base64.StdEncoding.EncodeToString(bytes)
+		token := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:", t.token)))
 		request.Header.Set("Authorization", fmt.Sprintf("Basic %s", token))
 	}
 }
