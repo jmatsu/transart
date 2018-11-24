@@ -26,8 +26,8 @@ func CreateRootConfigFlags() []cli.Flag {
 	}
 }
 
-func CreateRootConfig(c *cli.Context) error {
-	if config.ExistsRootConfig() {
+func CreateRootConfig(c *cli.Context, confFileName string) error {
+	if config.ExistsRootConfig(confFileName) {
 		if !c.Bool(forceOptionKey) {
 			return errors.New("a config file already exists. cannot overwrite without --force option")
 		}

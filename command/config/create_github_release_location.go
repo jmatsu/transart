@@ -38,8 +38,8 @@ func CreateGithubReleaseConfigFlags() []cli.Flag {
 	}
 }
 
-func CreateGithubReleaseConfig(c *cli.Context) error {
-	rootConfig, err := commonVerifyForAddingConfig(c)
+func CreateGithubReleaseConfig(c *cli.Context, confFileName string) error {
+	rootConfig, err := commonVerifyForAddingConfig(c, confFileName)
 
 	if err != nil {
 		return err

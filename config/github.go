@@ -70,7 +70,7 @@ func (c GitHubConfig) Validate() error {
 }
 
 func (c GitHubConfig) getUsername() (string, error) {
-	if v, prs := c.values[usernameKey]; prs {
+	if v, prs := c.values[usernameKey]; prs && v != "" {
 		return v.(string), nil
 	}
 
@@ -90,7 +90,7 @@ func (c GitHubConfig) SetUsername(v string) {
 }
 
 func (c GitHubConfig) getRepoName() (string, error) {
-	if v, prs := c.values[repoNameKey]; prs {
+	if v, prs := c.values[repoNameKey]; prs && v != "" {
 		return v.(string), nil
 	}
 
@@ -110,7 +110,7 @@ func (c GitHubConfig) SetRepoName(v string) {
 }
 
 func (c GitHubConfig) GetApiToken() null.String {
-	if v, prs := c.values[apiTokenNameKey]; prs {
+	if v, prs := c.values[apiTokenNameKey]; prs && v != nil {
 		if v, ok := os.LookupEnv(v.(string)); ok {
 			return null.StringFrom(v)
 		} else {
@@ -126,7 +126,7 @@ func (c GitHubConfig) SetApiTokenName(v *string) {
 }
 
 func (c GitHubConfig) getStrategy() (*GitHubReleaseCreationStrategy, error) {
-	if v, prs := c.values[strategyKey]; prs {
+	if v, prs := c.values[strategyKey]; prs && v != "" {
 		if !isGitHubReleaseCreationStrategy(v.(string)) {
 			return nil, fmt.Errorf("%s is not a valid strategy", v)
 		}

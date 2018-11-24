@@ -9,17 +9,14 @@ import (
 
 type (
 	RootConfig struct {
-		Version     uint              `yaml:"version"`
-		SaveDir     string            `yaml:"save_dir"`
-		Source      SourceConfig      `yaml:"source"`
-		Destination DestinationConfig `yaml:"destination"`
+		ConfFileName string
+		Version      uint              `yaml:"version"`
+		SaveDir      string            `yaml:"save_dir"`
+		Source       SourceConfig      `yaml:"source"`
+		Destination  DestinationConfig `yaml:"destination"`
 	}
 
 	LocationConfig map[string]interface{}
-
-	Validatable interface {
-		Validate() error
-	}
 
 	LocationType string
 
@@ -34,12 +31,12 @@ type (
 
 const (
 	CircleCI      LocationType = "circleci"
-	GitHubRelease              = "github-release"
-	Local                      = "local"
+	GitHubRelease LocationType = "github-release"
+	Local         LocationType = "local"
 )
 
 func (c LocationConfig) GetLocationType() (LocationType, error) {
-	if v, prs := c[locationTypeKey]; prs {
+	if v, prs := c[locationTypeKey]; prs && v != "" {
 		if v, ok := v.(string); ok {
 			return NewLocationType(v)
 		}
@@ -63,20 +60,22 @@ func NewLocationType(v string) (LocationType, error) {
 	}
 }
 
-func LoadRootConfig() (*RootConfig, error) {
+func LoadRootConfig(confFileName string) (*RootConfig, error) {
 	config := RootConfig{}
 
-	if bytes, err := ioutil.ReadFile(".transart.yml"); err != nil {
+	if bytes, err := ioutil.ReadFile(confFileName); err != nil {
 		return nil, err
 	} else if err := yaml.Unmarshal(bytes, &config); err != nil {
 		return nil, err
 	}
 
+	config.ConfFileName = confFileName
+
 	return &config, nil
 }
 
-func ExistsRootConfig() bool {
-	_, err := os.Stat(".transart.yml")
+func ExistsRootConfig(confFileName string) bool {
+	_, err := os.Stat(confFileName)
 
 	return err == nil || !os.IsNotExist(err)
 }
@@ -85,6 +84,6 @@ func (c *RootConfig) Save() error {
 	if bytes, err := yaml.Marshal(c); err != nil {
 		return err
 	} else {
-		return ioutil.WriteFile(".transart.yml", bytes, 0644)
+		return ioutil.WriteFile(c.ConfFileName, bytes, 0644)
 	}
 }

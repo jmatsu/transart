@@ -9,12 +9,11 @@ import (
 	"github.com/jmatsu/transart/lib"
 	"github.com/jmatsu/transart/local"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/urfave/cli.v2"
 	"io/ioutil"
 	"os"
 )
 
-func NewUploadAction(c cli.Context) command.Actions {
+func NewUploadAction() command.Actions {
 	return command.Actions{
 		GitHubRelease: uploadToGithubRelease,
 		Local:         uploadToLocal,

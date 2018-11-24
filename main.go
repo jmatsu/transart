@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	if b, err := strconv.ParseBool(os.Getenv("ARTIFACT_TRANSFER_DEBUG")); err == nil && b {
+	if b, err := strconv.ParseBool(os.Getenv("TRANSART_DEBUG")); err == nil && b {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
@@ -25,9 +25,9 @@ func main() {
 COMPLETION:
 	transart --init-completion <bash|zsh>
 WEBSITE:
-	https://github.com/jmatsu/artifact-transfer
+	https://github.com/jmatsu/transart
 SUPPORT:
-	https://github.com/jmatsu/artifact-transfer/issues
+	https://github.com/jmatsu/transart/issues
 `, cli.AppHelpTemplate)
 
 	cli.VersionPrinter = func(c *cli.Context) {
@@ -41,18 +41,26 @@ SUPPORT:
 	app.Version = version.Version
 	app.EnableShellCompletion = true
 
+	hub := func(action func(context *cli.Context, confFileName string) error) func(context *cli.Context) error {
+		return func(context *cli.Context) error {
+			confFileName := context.String(command.ConfFileOptionKey)
+
+			return action(context, confFileName)
+		}
+	}
+
 	app.Flags = command.CommonFlags()
 	app.Commands = []*cli.Command{
 		{
 			Name:   "init",
 			Usage:  "Create an initial root configuration file",
-			Action: configCommand.CreateRootConfig,
+			Action: hub(configCommand.CreateRootConfig),
 			Flags:  configCommand.CreateRootConfigFlags(),
 		},
 		{
 			Name:   "validate",
 			Usage:  "Validate a configuration file",
-			Action: configCommand.Validate,
+			Action: hub(configCommand.Validate),
 		},
 		{
 			Name:  "add",
@@ -61,19 +69,19 @@ SUPPORT:
 				{
 					Name:   "circleci",
 					Usage:  "Create a configuration for CircleCI",
-					Action: configCommand.CreateCircleCIConfig,
+					Action: hub(configCommand.CreateCircleCIConfig),
 					Flags:  append(configCommand.CreateAddLocationFlags(), configCommand.CreateCircleCIConfigFlags()...),
 				},
 				{
 					Name:   "github-release",
 					Usage:  "Create a configuration for GitHub Release",
-					Action: configCommand.CreateGithubReleaseConfig,
+					Action: hub(configCommand.CreateGithubReleaseConfig),
 					Flags:  append(configCommand.CreateAddLocationFlags(), configCommand.CreateGithubReleaseConfigFlags()...),
 				},
 				{
 					Name:   "local",
 					Usage:  "Create a configuration for local file system",
-					Action: configCommand.CreateLocalConfig,
+					Action: hub(configCommand.CreateLocalConfig),
 					Flags:  append(configCommand.CreateAddLocationFlags(), configCommand.CreateLocalConfigFlags()...),
 				},
 			},
@@ -81,8 +89,8 @@ SUPPORT:
 		{
 			Name:  "transfer",
 			Usage: "Download artifacts and assets from sources, and upload them to the destination",
-			Action: func(context *cli.Context) error {
-				rootConfig, err := config.LoadRootConfig()
+			Action: hub(func(context *cli.Context, confFileName string) error {
+				rootConfig, err := config.LoadRootConfig(confFileName)
 
 				if err != nil {
 					return err
@@ -92,38 +100,38 @@ SUPPORT:
 					return err
 				}
 
-				if err := destination.NewUploadAction(*context).Destination(*rootConfig); err != nil {
+				if err := destination.NewUploadAction().Destination(*rootConfig); err != nil {
 					return err
 				}
 
 				return nil
-			},
+			}),
 		},
 		{
 			Name:  "download",
 			Usage: "Download artifacts and assets from sources",
-			Action: func(context *cli.Context) error {
-				rootConfig, err := config.LoadRootConfig()
+			Action: hub(func(context *cli.Context, confFileName string) error {
+				rootConfig, err := config.LoadRootConfig(confFileName)
 
 				if err != nil {
 					return err
 				}
 
 				return source.NewDownloadAction().Source(*rootConfig)
-			},
+			}),
 		},
 		{
 			Name:  "upload",
 			Usage: "Upload artifacts and assets the destination",
-			Action: func(context *cli.Context) error {
-				rootConfig, err := config.LoadRootConfig()
+			Action: hub(func(context *cli.Context, confFileName string) error {
+				rootConfig, err := config.LoadRootConfig(confFileName)
 
 				if err != nil {
 					return err
 				}
 
-				return destination.NewUploadAction(*context).Destination(*rootConfig)
-			},
+				return destination.NewUploadAction().Source(*rootConfig)
+			}),
 		},
 	}
 

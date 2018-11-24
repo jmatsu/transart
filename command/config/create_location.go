@@ -28,10 +28,10 @@ func CreateAddLocationFlags() []cli.Flag {
 	}
 }
 
-func commonVerifyForAddingConfig(c *cli.Context) (*config.RootConfig, error) {
+func commonVerifyForAddingConfig(c *cli.Context, confFileName string) (*config.RootConfig, error) {
 	if !c.IsSet(sourceOptionKey) && !c.IsSet(destinationOptionKey) {
 		return nil, fmt.Errorf("either of --%s or --%s is required", sourceOptionKey, destinationOptionKey)
 	}
 
-	return config.LoadRootConfig()
+	return config.LoadRootConfig(confFileName)
 }

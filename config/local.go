@@ -44,7 +44,7 @@ func (c LocalConfig) Validate() error {
 }
 
 func (c LocalConfig) getPath() (string, error) {
-	if v, prs := c.values[pathKey]; prs {
+	if v, prs := c.values[pathKey]; prs && v != "" {
 		return v.(string), nil
 	}
 

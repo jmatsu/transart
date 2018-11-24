@@ -49,8 +49,8 @@ func CreateCircleCIConfigFlags() []cli.Flag {
 	}
 }
 
-func CreateCircleCIConfig(c *cli.Context) error {
-	rootConfig, err := commonVerifyForAddingConfig(c)
+func CreateCircleCIConfig(c *cli.Context, confFileName string) error {
+	rootConfig, err := commonVerifyForAddingConfig(c, confFileName)
 
 	if err != nil {
 		return err

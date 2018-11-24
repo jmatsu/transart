@@ -25,8 +25,8 @@ func CreateLocalConfigFlags() []cli.Flag {
 	}
 }
 
-func CreateLocalConfig(c *cli.Context) error {
-	rootConfig, err := commonVerifyForAddingConfig(c)
+func CreateLocalConfig(c *cli.Context, confFileName string) error {
+	rootConfig, err := commonVerifyForAddingConfig(c, confFileName)
 
 	if err != nil {
 		return err

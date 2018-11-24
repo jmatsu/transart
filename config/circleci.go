@@ -66,7 +66,7 @@ func (c CircleCIConfig) setErr(_ interface{}, err error) {
 }
 
 func (c CircleCIConfig) getVcsType() (VcsType, error) {
-	if v, prs := c.values[vcsTypeKey]; prs {
+	if v, prs := c.values[vcsTypeKey]; prs && v != "" {
 		if v, ok := v.(string); ok {
 			return NewVcsType(v)
 		}
@@ -84,11 +84,11 @@ func (c CircleCIConfig) GetVcsType() VcsType {
 }
 
 func (c CircleCIConfig) SetVcsType(v VcsType) {
-	c.values[vcsTypeKey] = v
+	c.values[vcsTypeKey] = string(v)
 }
 
 func (c CircleCIConfig) getUsername() (string, error) {
-	if v, prs := c.values[usernameKey]; prs {
+	if v, prs := c.values[usernameKey]; prs && v != "" {
 		return v.(string), nil
 	}
 
@@ -108,7 +108,7 @@ func (c CircleCIConfig) SetUsername(v string) {
 }
 
 func (c CircleCIConfig) getRepoName() (string, error) {
-	if v, prs := c.values[repoNameKey]; prs {
+	if v, prs := c.values[repoNameKey]; prs && v != "" {
 		return v.(string), nil
 	}
 
@@ -128,7 +128,7 @@ func (c CircleCIConfig) SetRepoName(v string) {
 }
 
 func (c CircleCIConfig) GetBranch() null.String {
-	if v, prs := c.values[branchKey]; prs {
+	if v, prs := c.values[branchKey]; prs && v != nil {
 		return null.StringFrom(v.(string))
 	} else {
 		return null.StringFromPtr(nil)
@@ -140,7 +140,7 @@ func (c CircleCIConfig) SetBranch(v *string) {
 }
 
 func (c CircleCIConfig) GetApiToken() null.String {
-	if v, prs := c.values[apiTokenNameKey]; prs {
+	if v, prs := c.values[apiTokenNameKey]; prs && v != nil {
 		if v, ok := os.LookupEnv(v.(string)); ok {
 			return null.StringFrom(v)
 		} else {
