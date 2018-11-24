@@ -6,7 +6,7 @@ before:
 builds:
 -
   ldflags:
-    - -o transart -s -w -X github.com/jmatsu/transart/version.Version={{.Version}} -X github.com/jmatsu/transart/version.commit={{.Commit}} -X github.com/jmatsu/transart/version.date={{.Date}}
+    - -s -w -X github.com/jmatsu/transart/version.Version={{.Version}} -X github.com/jmatsu/transart/version.commit={{.Commit}} -X github.com/jmatsu/transart/version.date={{.Date}}
   goos:
     - linux
     - darwin
