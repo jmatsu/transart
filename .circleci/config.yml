@@ -32,17 +32,6 @@ jobs:
       - checkout
       - run: *download_dep
       - run: curl -sL https://git.io/goreleaser | bash
-  release_snapshot:
-    <<: *default_env
-    steps:
-      - checkout
-      - run: *download_dep
-      - run:
-          name: Run snapshot goreleaser
-          command: |
-            curl -sLo goreleaser https://git.io/goreleaser
-            chmod +x goreleaser
-            ./goreleaser --snapshot
 
 workflows:
   version: 2
@@ -57,7 +46,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v[^-]*$/
-      - release_snapshot:
+      - release:
           filters:
             branches:
               ignore: /.*/
