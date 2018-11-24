@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/jmatsu/transart/lib"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -40,17 +41,31 @@ const (
 )
 
 func (c LocationConfig) GetLocationType() (LocationType, error) {
-	if v, prs := c[locationTypeKey]; prs && v != "" {
-		if v, ok := v.(string); ok {
-			return NewLocationType(v)
-		}
+	if c.Has(locationTypeKey) {
+		return NewLocationType(c[locationTypeKey].(string))
 	}
 
 	return LocationType(""), fmt.Errorf("%s is missing or an invalid value\n", locationTypeKey)
 }
 
 func (c LocationConfig) SetLocationType(t LocationType) {
-	c[locationTypeKey] = string(t)
+	c.Set(locationTypeKey, string(t))
+}
+
+func (c LocationConfig) Set(key string, v interface{}) {
+	if lib.IsZeroOrNil(v) {
+		delete(c, key)
+	} else {
+		c[key] = lib.Value(v)
+	}
+}
+
+func (c LocationConfig) Has(key string) bool {
+	if v, prs := c[key]; prs && !lib.IsZeroOrNil(v) {
+		return true
+	} else {
+		return false
+	}
 }
 
 func NewLocationType(v string) (LocationType, error) {

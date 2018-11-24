@@ -72,7 +72,7 @@ SUPPORT:
 		{
 			Name:   "validate",
 			Usage:  "Validate a configuration file",
-			Action: requireConfFileName(configCommand.Validate),
+			Action: requireProject(configCommand.Validate),
 		},
 		{
 			Name:  "add",

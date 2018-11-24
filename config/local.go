@@ -44,8 +44,8 @@ func (c LocalConfig) Validate() error {
 }
 
 func (c LocalConfig) getPath() (string, error) {
-	if v, prs := c.values[pathKey]; prs && v != "" {
-		return v.(string), nil
+	if c.values.Has(pathKey) {
+		return c.values[pathKey].(string), nil
 	}
 
 	return "", fmt.Errorf("%s is missinge\n", pathKey)
@@ -60,16 +60,20 @@ func (c LocalConfig) GetPath() string {
 }
 
 func (c LocalConfig) SetPath(v string) {
-	c.values[pathKey] = v
+	c.values.Set(pathKey, v)
 }
 
 func (c LocalConfig) getFileNamePattern() (string, error) {
-	if v, prs := c.values[fileNamePattern]; prs && v != nil {
-		if _, err := regexp.Compile(v.(string)); err != nil {
+	if c.values.Has(fileNamePattern) {
+		pattern := c.values[fileNamePattern].(string)
+
+		if _, err := regexp.Compile(pattern); err != nil {
 			return "", err
 		} else {
-			return v.(string), nil
+			return pattern, nil
 		}
+
+		return "", nil
 	} else {
 		return "", nil
 	}
@@ -84,5 +88,5 @@ func (c LocalConfig) GetFileNamePattern() string {
 }
 
 func (c LocalConfig) SetFileNamePattern(v *string) {
-	c.values[fileNamePattern] = v
+	c.values.Set(fileNamePattern, v)
 }

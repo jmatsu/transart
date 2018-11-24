@@ -70,8 +70,8 @@ func (c GitHubConfig) Validate() error {
 }
 
 func (c GitHubConfig) getUsername() (string, error) {
-	if v, prs := c.values[usernameKey]; prs && v != "" {
-		return v.(string), nil
+	if c.values.Has(usernameKey) {
+		return c.values[usernameKey].(string), nil
 	}
 
 	return "", fmt.Errorf("%s is missinge\n", usernameKey)
@@ -86,12 +86,12 @@ func (c GitHubConfig) GetUsername() string {
 }
 
 func (c GitHubConfig) SetUsername(v string) {
-	c.values[usernameKey] = v
+	c.values.Set(usernameKey, v)
 }
 
 func (c GitHubConfig) getRepoName() (string, error) {
-	if v, prs := c.values[repoNameKey]; prs && v != "" {
-		return v.(string), nil
+	if c.values.Has(repoNameKey) {
+		return c.values[repoNameKey].(string), nil
 	}
 
 	return "", fmt.Errorf("%s is missing\n", repoNameKey)
@@ -106,32 +106,36 @@ func (c GitHubConfig) GetRepoName() string {
 }
 
 func (c GitHubConfig) SetRepoName(v string) {
-	c.values[repoNameKey] = v
+	c.values.Set(repoNameKey, v)
 }
 
 func (c GitHubConfig) GetApiToken() null.String {
-	if v, prs := c.values[apiTokenNameKey]; prs && v != nil {
-		if v, ok := os.LookupEnv(v.(string)); ok {
+	if c.values.Has(apiTokenNameKey) {
+		name := c.values[apiTokenNameKey].(string)
+
+		if v, ok := os.LookupEnv(name); ok {
 			return null.StringFrom(v)
-		} else {
-			return null.StringFromPtr(nil)
 		}
+
+		return null.StringFromPtr(nil)
 	} else {
 		return null.StringFromPtr(nil)
 	}
 }
 
 func (c GitHubConfig) SetApiTokenName(v *string) {
-	c.values[apiTokenNameKey] = v
+	c.values.Set(apiTokenNameKey, v)
 }
 
 func (c GitHubConfig) getStrategy() (*GitHubReleaseCreationStrategy, error) {
-	if v, prs := c.values[strategyKey]; prs && v != "" {
-		if !isGitHubReleaseCreationStrategy(v.(string)) {
+	if c.values.Has(strategyKey) {
+		v := c.values[strategyKey].(string)
+
+		if !isGitHubReleaseCreationStrategy(c.values[strategyKey].(string)) {
 			return nil, fmt.Errorf("%s is not a valid strategy", v)
 		}
 
-		s := GitHubReleaseCreationStrategy(v.(string))
+		s := GitHubReleaseCreationStrategy(v)
 
 		return &s, nil
 	}
@@ -148,5 +152,5 @@ func (c GitHubConfig) GetStrategy() GitHubReleaseCreationStrategy {
 }
 
 func (c GitHubConfig) SetStrategy(s GitHubReleaseCreationStrategy) {
-	c.values[strategyKey] = string(s)
+	c.values.Set(strategyKey, string(s))
 }

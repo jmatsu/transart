@@ -66,10 +66,8 @@ func (c CircleCIConfig) setErr(_ interface{}, err error) {
 }
 
 func (c CircleCIConfig) getVcsType() (VcsType, error) {
-	if v, prs := c.values[vcsTypeKey]; prs && v != "" {
-		if v, ok := v.(string); ok {
-			return NewVcsType(v)
-		}
+	if c.values.Has(vcsTypeKey) {
+		return NewVcsType(c.values[vcsTypeKey].(string))
 	}
 
 	return VcsType(""), fmt.Errorf("%s is missing or an invalid value\n", vcsTypeKey)
@@ -84,12 +82,12 @@ func (c CircleCIConfig) GetVcsType() VcsType {
 }
 
 func (c CircleCIConfig) SetVcsType(v VcsType) {
-	c.values[vcsTypeKey] = string(v)
+	c.values.Set(vcsTypeKey, string(v))
 }
 
 func (c CircleCIConfig) getUsername() (string, error) {
-	if v, prs := c.values[usernameKey]; prs && v != "" {
-		return v.(string), nil
+	if c.values.Has(usernameKey) {
+		return c.values[usernameKey].(string), nil
 	}
 
 	return "", fmt.Errorf("%s is missinge\n", usernameKey)
@@ -104,12 +102,12 @@ func (c CircleCIConfig) GetUsername() string {
 }
 
 func (c CircleCIConfig) SetUsername(v string) {
-	c.values[usernameKey] = v
+	c.values.Set(usernameKey, v)
 }
 
 func (c CircleCIConfig) getRepoName() (string, error) {
-	if v, prs := c.values[repoNameKey]; prs && v != "" {
-		return v.(string), nil
+	if c.values.Has(repoNameKey) {
+		return c.values[repoNameKey].(string), nil
 	}
 
 	return "", fmt.Errorf("%s is missing\n", repoNameKey)
@@ -124,43 +122,47 @@ func (c CircleCIConfig) GetRepoName() string {
 }
 
 func (c CircleCIConfig) SetRepoName(v string) {
-	c.values[repoNameKey] = v
+	c.values.Set(repoNameKey, v)
 }
 
 func (c CircleCIConfig) GetBranch() null.String {
-	if v, prs := c.values[branchKey]; prs && v != nil {
-		return null.StringFrom(v.(string))
-	} else {
-		return null.StringFromPtr(nil)
+	if c.values.Has(branchKey) {
+		return null.StringFrom(c.values[branchKey].(string))
 	}
+
+	return null.StringFromPtr(nil)
 }
 
 func (c CircleCIConfig) SetBranch(v *string) {
-	c.values[branchKey] = v
+	c.values.Set(branchKey, v)
 }
 
 func (c CircleCIConfig) GetApiToken() null.String {
-	if v, prs := c.values[apiTokenNameKey]; prs && v != nil {
-		if v, ok := os.LookupEnv(v.(string)); ok {
+	if c.values.Has(apiTokenNameKey) {
+		name := c.values[apiTokenNameKey].(string)
+
+		if v, ok := os.LookupEnv(name); ok {
 			return null.StringFrom(v)
-		} else {
-			return null.StringFromPtr(nil)
 		}
+
+		return null.StringFromPtr(nil)
 	} else {
 		return null.StringFromPtr(nil)
 	}
 }
 
 func (c CircleCIConfig) SetApiTokenName(v *string) {
-	c.values[apiTokenNameKey] = v
+	c.values.Set(apiTokenNameKey, v)
 }
 
 func (c CircleCIConfig) getFileNamePattern() (string, error) {
-	if v, prs := c.values[fileNamePattern]; prs && v != nil {
-		if _, err := regexp.Compile(v.(string)); err != nil {
+	if c.values.Has(fileNamePattern) {
+		pattern := c.values[fileNamePattern].(string)
+
+		if _, err := regexp.Compile(pattern); err != nil {
 			return "", err
 		} else {
-			return v.(string), nil
+			return pattern, nil
 		}
 	} else {
 		return "", nil
@@ -176,5 +178,5 @@ func (c CircleCIConfig) GetFileNamePattern() string {
 }
 
 func (c CircleCIConfig) SetFileNamePattern(v *string) {
-	c.values[fileNamePattern] = v
+	c.values.Set(fileNamePattern, v)
 }

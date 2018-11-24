@@ -6,13 +6,7 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
-func Validate(_ *cli.Context, confFileName string) error {
-	project, err := config.LoadProject(confFileName)
-
-	if err != nil {
-		return err
-	}
-
+func Validate(_ *cli.Context, project config.Project) error {
 	rootConfig := project.RootConfig
 
 	if rootConfig.Version < 1 {
