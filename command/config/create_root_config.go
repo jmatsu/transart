@@ -17,11 +17,13 @@ func CreateRootConfigFlags() []cli.Flag {
 			Name:    saveDirOptionKey,
 			Usage:   "a directory path of artifacts to be saved",
 			Aliases: []string{"p"},
+			Value:   ".transart",
 		},
 		&cli.BoolFlag{
 			Name:    forceOptionKey,
 			Usage:   "force to do it",
 			Aliases: []string{"f"},
+			Value:   false,
 		},
 	}
 }
@@ -45,16 +47,19 @@ func CreateRootConfig(c *cli.Context, confFileName string) error {
 		return errors.New("empty directory name is not allowed")
 	}
 
-	rootConfig := config.RootConfig{
-		Version: 1,
-		SaveDir: saveDir,
-		Source: config.SourceConfig{
-			Locations: []config.LocationConfig{},
-		},
-		Destination: config.DestinationConfig{
-			Location: config.LocationConfig{},
+	project := config.Project{
+		ConfFileName: confFileName,
+		RootConfig: config.RootConfig{
+			Version: 1,
+			SaveDir: saveDir,
+			Source: config.SourceConfig{
+				Locations: []config.LocationConfig{},
+			},
+			Destination: config.DestinationConfig{
+				Location: config.LocationConfig{},
+			},
 		},
 	}
 
-	return rootConfig.Save()
+	return project.SaveConfig()
 }

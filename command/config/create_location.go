@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"github.com/jmatsu/transart/config"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -28,10 +27,10 @@ func CreateAddLocationFlags() []cli.Flag {
 	}
 }
 
-func commonVerifyForAddingConfig(c *cli.Context, confFileName string) (*config.RootConfig, error) {
+func commonVerifyForAddingConfig(c *cli.Context) error {
 	if !c.IsSet(sourceOptionKey) && !c.IsSet(destinationOptionKey) {
-		return nil, fmt.Errorf("either of --%s or --%s is required", sourceOptionKey, destinationOptionKey)
+		return fmt.Errorf("either of --%s or --%s is required", sourceOptionKey, destinationOptionKey)
 	}
 
-	return config.LoadRootConfig(confFileName)
+	return nil
 }

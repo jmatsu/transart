@@ -25,10 +25,8 @@ func CreateLocalConfigFlags() []cli.Flag {
 	}
 }
 
-func CreateLocalConfig(c *cli.Context, confFileName string) error {
-	rootConfig, err := commonVerifyForAddingConfig(c, confFileName)
-
-	if err != nil {
+func CreateLocalConfig(c *cli.Context, project config.Project) error {
+	if err := commonVerifyForAddingConfig(c); err != nil {
 		return err
 	}
 
@@ -57,10 +55,10 @@ func CreateLocalConfig(c *cli.Context, confFileName string) error {
 
 	switch true {
 	case c.IsSet(sourceOptionKey):
-		rootConfig.Source.Locations = append(rootConfig.Source.Locations, lc)
+		project.AddSource(lc)
 	case c.IsSet(destinationOptionKey):
-		rootConfig.Destination.Location = lc
+		project.SetDestination(lc)
 	}
 
-	return rootConfig.Save()
+	return project.SaveConfig()
 }

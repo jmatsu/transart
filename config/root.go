@@ -8,12 +8,16 @@ import (
 )
 
 type (
-	RootConfig struct {
+	Project struct {
 		ConfFileName string
-		Version      uint              `yaml:"version"`
-		SaveDir      string            `yaml:"save_dir"`
-		Source       SourceConfig      `yaml:"source"`
-		Destination  DestinationConfig `yaml:"destination"`
+		RootConfig   RootConfig
+	}
+
+	RootConfig struct {
+		Version     uint              `yaml:"version"`
+		SaveDir     string            `yaml:"save_dir"`
+		Source      SourceConfig      `yaml:"source"`
+		Destination DestinationConfig `yaml:"destination"`
 	}
 
 	LocationConfig map[string]interface{}
@@ -60,7 +64,22 @@ func NewLocationType(v string) (LocationType, error) {
 	}
 }
 
-func LoadRootConfig(confFileName string) (*RootConfig, error) {
+func LoadProject(confFileName string) (*Project, error) {
+	rootConfig, err := loadRootConfig(confFileName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	project := &Project{
+		ConfFileName: confFileName,
+		RootConfig:   *rootConfig,
+	}
+
+	return project, nil
+}
+
+func loadRootConfig(confFileName string) (*RootConfig, error) {
 	config := RootConfig{}
 
 	if bytes, err := ioutil.ReadFile(confFileName); err != nil {
@@ -68,8 +87,6 @@ func LoadRootConfig(confFileName string) (*RootConfig, error) {
 	} else if err := yaml.Unmarshal(bytes, &config); err != nil {
 		return nil, err
 	}
-
-	config.ConfFileName = confFileName
 
 	return &config, nil
 }
@@ -80,10 +97,18 @@ func ExistsRootConfig(confFileName string) bool {
 	return err == nil || !os.IsNotExist(err)
 }
 
-func (c *RootConfig) Save() error {
-	if bytes, err := yaml.Marshal(c); err != nil {
+func (p *Project) SaveConfig() error {
+	if bytes, err := yaml.Marshal(p.RootConfig); err != nil {
 		return err
 	} else {
-		return ioutil.WriteFile(c.ConfFileName, bytes, 0644)
+		return ioutil.WriteFile(p.ConfFileName, bytes, 0644)
 	}
+}
+
+func (p *Project) AddSource(lc LocationConfig) {
+	p.RootConfig.Source.Locations = append(p.RootConfig.Source.Locations, lc)
+}
+
+func (p *Project) SetDestination(lc LocationConfig) {
+	p.RootConfig.Destination.Location = lc
 }

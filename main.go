@@ -41,7 +41,7 @@ SUPPORT:
 	app.Version = version.Version
 	app.EnableShellCompletion = true
 
-	hub := func(action func(context *cli.Context, confFileName string) error) func(context *cli.Context) error {
+	requireConfFileName := func(action func(context *cli.Context, confFileName string) error) func(context *cli.Context) error {
 		return func(context *cli.Context) error {
 			confFileName := context.String(command.ConfFileOptionKey)
 
@@ -49,18 +49,30 @@ SUPPORT:
 		}
 	}
 
+	requireProject := func(action func(context *cli.Context, project config.Project) error) func(context *cli.Context) error {
+		return requireConfFileName(func(context *cli.Context, confFileName string) error {
+			project, err := config.LoadProject(confFileName)
+
+			if err != nil {
+				return err
+			}
+
+			return action(context, *project)
+		})
+	}
+
 	app.Flags = command.CommonFlags()
 	app.Commands = []*cli.Command{
 		{
 			Name:   "init",
 			Usage:  "Create an initial root configuration file",
-			Action: hub(configCommand.CreateRootConfig),
+			Action: requireConfFileName(configCommand.CreateRootConfig),
 			Flags:  configCommand.CreateRootConfigFlags(),
 		},
 		{
 			Name:   "validate",
 			Usage:  "Validate a configuration file",
-			Action: hub(configCommand.Validate),
+			Action: requireConfFileName(configCommand.Validate),
 		},
 		{
 			Name:  "add",
@@ -69,19 +81,20 @@ SUPPORT:
 				{
 					Name:   "circleci",
 					Usage:  "Create a configuration for CircleCI",
-					Action: hub(configCommand.CreateCircleCIConfig),
+					Action: requireProject(configCommand.CreateCircleCIConfig),
 					Flags:  append(configCommand.CreateAddLocationFlags(), configCommand.CreateCircleCIConfigFlags()...),
 				},
 				{
-					Name:   "github-release",
-					Usage:  "Create a configuration for GitHub Release",
-					Action: hub(configCommand.CreateGithubReleaseConfig),
-					Flags:  append(configCommand.CreateAddLocationFlags(), configCommand.CreateGithubReleaseConfigFlags()...),
+					Name:    "github-release",
+					Aliases: []string{"gh-release"},
+					Usage:   "Create a configuration for GitHub Release",
+					Action:  requireProject(configCommand.CreateGithubReleaseConfig),
+					Flags:   append(configCommand.CreateAddLocationFlags(), configCommand.CreateGithubReleaseConfigFlags()...),
 				},
 				{
 					Name:   "local",
 					Usage:  "Create a configuration for local file system",
-					Action: hub(configCommand.CreateLocalConfig),
+					Action: requireProject(configCommand.CreateLocalConfig),
 					Flags:  append(configCommand.CreateAddLocationFlags(), configCommand.CreateLocalConfigFlags()...),
 				},
 			},
@@ -89,18 +102,12 @@ SUPPORT:
 		{
 			Name:  "transfer",
 			Usage: "Download artifacts and assets from sources, and upload them to the destination",
-			Action: hub(func(context *cli.Context, confFileName string) error {
-				rootConfig, err := config.LoadRootConfig(confFileName)
-
-				if err != nil {
+			Action: requireProject(func(_ *cli.Context, project config.Project) error {
+				if err := source.NewDownloadAction().Source(project.RootConfig); err != nil {
 					return err
 				}
 
-				if err := source.NewDownloadAction().Source(*rootConfig); err != nil {
-					return err
-				}
-
-				if err := destination.NewUploadAction().Destination(*rootConfig); err != nil {
+				if err := destination.NewUploadAction().Destination(project.RootConfig); err != nil {
 					return err
 				}
 
@@ -110,27 +117,15 @@ SUPPORT:
 		{
 			Name:  "download",
 			Usage: "Download artifacts and assets from sources",
-			Action: hub(func(context *cli.Context, confFileName string) error {
-				rootConfig, err := config.LoadRootConfig(confFileName)
-
-				if err != nil {
-					return err
-				}
-
-				return source.NewDownloadAction().Source(*rootConfig)
+			Action: requireProject(func(_ *cli.Context, project config.Project) error {
+				return source.NewDownloadAction().Source(project.RootConfig)
 			}),
 		},
 		{
 			Name:  "upload",
 			Usage: "Upload artifacts and assets the destination",
-			Action: hub(func(context *cli.Context, confFileName string) error {
-				rootConfig, err := config.LoadRootConfig(confFileName)
-
-				if err != nil {
-					return err
-				}
-
-				return destination.NewUploadAction().Source(*rootConfig)
+			Action: requireProject(func(_ *cli.Context, project config.Project) error {
+				return destination.NewUploadAction().Destination(project.RootConfig)
 			}),
 		},
 	}

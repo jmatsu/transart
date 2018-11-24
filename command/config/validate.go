@@ -7,11 +7,13 @@ import (
 )
 
 func Validate(_ *cli.Context, confFileName string) error {
-	rootConfig, err := config.LoadRootConfig(confFileName)
+	project, err := config.LoadProject(confFileName)
 
 	if err != nil {
 		return err
 	}
+
+	rootConfig := project.RootConfig
 
 	if rootConfig.Version < 1 {
 		return errors.New("version must be greater than 0")
