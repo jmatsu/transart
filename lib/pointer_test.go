@@ -26,8 +26,8 @@ var isNilTests = []struct {
 func TestIsNil(t *testing.T) {
 	for i, c := range isNilTests {
 		t.Run(fmt.Sprintf("TestIsNil %d", i), func(t *testing.T) {
-			if isNil(c.in) != c.out {
-				t.Errorf("got %v, want %v", isNil(c.in), c.out)
+			if IsNil(c.in) != c.out {
+				t.Errorf("got %v, want %v", IsNil(c.in), c.out)
 			}
 		})
 	}

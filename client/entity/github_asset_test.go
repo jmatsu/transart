@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestAsset(t *testing.T) {
+func TestGitHubAsset(t *testing.T) {
 	bytes := []byte("{\"id\": 10, \"state\": \"this is a state\", \"name\": \"this is a name\", \"size\": 1}")
 
 	asset := Asset{}
@@ -22,7 +22,7 @@ func TestAsset(t *testing.T) {
 	}
 }
 
-var testAsset_IsUploadedTests = []struct {
+var testGitHubAsset_IsUploadedTests = []struct {
 	in  string
 	out bool
 }{
@@ -36,8 +36,8 @@ var testAsset_IsUploadedTests = []struct {
 	},
 }
 
-func TestAsset_IsUploaded(t *testing.T) {
-	for i, c := range testAsset_IsUploadedTests {
+func TestGitHubAsset_IsUploaded(t *testing.T) {
+	for i, c := range testGitHubAsset_IsUploadedTests {
 		t.Run(fmt.Sprintf("TestAsset_IsUploaded %d", i), func(t *testing.T) {
 			bytes := []byte(fmt.Sprintf("{\"state\": \"%s\"}", c.in))
 

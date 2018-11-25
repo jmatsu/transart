@@ -2,13 +2,12 @@ package destination
 
 import (
 	"fmt"
+	"github.com/jmatsu/transart/client"
+	"github.com/jmatsu/transart/client/entity"
 	"github.com/jmatsu/transart/command"
 	"github.com/jmatsu/transart/config"
-	"github.com/jmatsu/transart/github"
-	"github.com/jmatsu/transart/github/entity"
 	"github.com/jmatsu/transart/lib"
 	"github.com/jmatsu/transart/local"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 )
@@ -20,38 +19,31 @@ func NewUploadAction() command.Actions {
 	}
 }
 
-func uploadToGithubRelease(rootConfig config.RootConfig, gitHubConfig config.GitHubConfig) error {
-	if err := gitHubConfig.Validate(); err != nil {
+func uploadToGithubRelease(rootConfig config.RootConfig, ghConfig config.GitHubConfig) error {
+	if err := ghConfig.Validate(); err != nil {
 		return err
 	}
 
-	var releaseToBeUpdated *entity.Release
+	ghClient := client.NewGitHubClient(ghConfig.GetUsername(), ghConfig.GetRepoName(), ghConfig.GetApiToken())
 
-	switch gitHubConfig.GetStrategy() {
+	var releaseToBeUpdated entity.Release
+
+	switch ghConfig.GetStrategy() {
 	case config.Create:
-		if release, err := github.CreateDraftRelease(gitHubConfig); err == nil {
-			releaseToBeUpdated = &release
-		} else {
-			return err
-		}
+		releaseToBeUpdated = ghClient.CreateDraftRelease()
 	case config.Draft:
-		if release, err := github.GetDraftRelease(gitHubConfig); err == nil {
-			releaseToBeUpdated = &release
-		} else {
-			return err
-		}
+		releaseToBeUpdated = ghClient.GetDraftRelease()
 	case config.DraftOrCreate:
-		if release, err := github.GetDraftRelease(gitHubConfig); err == nil {
-			releaseToBeUpdated = &release
-		} else if release, err := github.CreateDraftRelease(gitHubConfig); err == nil {
-			releaseToBeUpdated = &release
-		} else {
-			return err
+		releaseToBeUpdated = ghClient.GetDraftRelease()
+
+		if !lib.IsNil(ghClient.Err) {
+			ghClient.Err = nil
+			releaseToBeUpdated = ghClient.CreateDraftRelease()
 		}
 	}
 
-	if releaseToBeUpdated == nil {
-		panic(fmt.Errorf("implementation error"))
+	if !lib.IsNil(ghClient.Err) {
+		return ghClient.Err
 	}
 
 	fs, err := ioutil.ReadDir(rootConfig.SaveDir)
@@ -62,15 +54,9 @@ func uploadToGithubRelease(rootConfig config.RootConfig, gitHubConfig config.Git
 
 	for _, f := range fs {
 		lib.ForEachFiles(rootConfig.SaveDir, f, func(dirname string, info os.FileInfo) error {
-			asset, err := github.UploadToRelease(gitHubConfig, *releaseToBeUpdated, fmt.Sprintf("%s/%s", dirname, info.Name()))
+			_ = ghClient.UploadFileToRelease(releaseToBeUpdated, fmt.Sprintf("%s/%s", dirname, info.Name()))
 
-			if err != nil {
-				return err
-			}
-
-			logrus.Debugln(asset.Name)
-
-			return nil
+			return ghClient.Err
 		})
 	}
 

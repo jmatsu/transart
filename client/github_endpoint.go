@@ -1,4 +1,4 @@
-package github
+package client
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ReleaseListEndpoint(username string, repoName string) lib.Endpoint {
+func gitHubReleaseListEndpoint(username string, repoName string) lib.Endpoint {
 	return lib.Endpoint{
 		Url:      fmt.Sprintf("https://api.github.com/repos/%s/%s/releases", url.PathEscape(username), url.PathEscape(repoName)),
 		AuthType: lib.HeaderAuth,
@@ -15,7 +15,7 @@ func ReleaseListEndpoint(username string, repoName string) lib.Endpoint {
 	}
 }
 
-func UploadReleaseEndpoint(uri string) lib.Endpoint {
+func gitHubUploadReleaseEndpoint(uri string) lib.Endpoint {
 	return lib.Endpoint{
 		Url:      strings.Split(uri, "{")[0], // hypermedia url will be coming
 		AuthType: lib.HeaderAuth,
@@ -23,7 +23,7 @@ func UploadReleaseEndpoint(uri string) lib.Endpoint {
 	}
 }
 
-func CreateReleaseEndpoint(username string, repoName string) lib.Endpoint {
+func gitHubCreateReleaseEndpoint(username string, repoName string) lib.Endpoint {
 	return lib.Endpoint{
 		Url:      fmt.Sprintf("https://api.github.com/repos/%s/%s/releases", url.PathEscape(username), url.PathEscape(repoName)),
 		AuthType: lib.HeaderAuth,

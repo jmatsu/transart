@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestArtifact(t *testing.T) {
+func TestGitHubArtifact(t *testing.T) {
 	bytes := []byte("{\"id\": 1, \"url\": \"this is a url\",\"upload_url\": \"this is a upload_url\",\"tag_name\": \"this is a tag_name\", \"draft\": true }")
 
 	release := Release{}

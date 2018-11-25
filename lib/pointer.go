@@ -5,14 +5,14 @@ import (
 	"reflect"
 )
 
-func isNil(v interface{}) bool {
+func IsNil(v interface{}) bool {
 	ref := reflect.ValueOf(v)
 
 	return v == nil || ref.Kind() == reflect.Ptr && ref.IsNil()
 }
 
 func IsZeroOrNil(v interface{}) bool {
-	if isNil(v) {
+	if IsNil(v) {
 		return true
 	}
 
@@ -35,11 +35,11 @@ func IsZeroOrNil(v interface{}) bool {
 
 	reflect.ValueOf(v).Interface()
 
-	return isNil(v) || reflect.Zero(reflect.TypeOf(v)) == reflect.ValueOf(v)
+	return IsNil(v) || reflect.Zero(reflect.TypeOf(v)) == reflect.ValueOf(v)
 }
 
 func Value(v interface{}) interface{} {
-	if isNil(v) {
+	if IsNil(v) {
 		panic(fmt.Errorf("%v is nil", v))
 	}
 

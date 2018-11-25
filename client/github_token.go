@@ -1,32 +1,33 @@
-package github
+package client
 
 import (
 	"fmt"
+	"github.com/jmatsu/transart/lib"
 	"gopkg.in/guregu/null.v3"
 	"net/http"
 	"net/url"
 )
 
-type Token struct {
+type gitHubToken struct {
 	token string
 }
 
-func NewToken(t null.String) *Token {
+func newGitHubToken(t null.String) lib.Token {
 	if !t.Valid {
 		return nil
 	}
 
-	return &Token{
+	return &gitHubToken{
 		token: t.String,
 	}
 }
 
-func (t *Token) SetToHeader(request *http.Request) {
+func (t *gitHubToken) SetToHeader(request *http.Request) {
 	if t != nil {
 		request.Header.Set("Authorization", fmt.Sprintf("token %s", t.token))
 	}
 }
 
-func (t *Token) ToParam() url.Values {
+func (t *gitHubToken) ToParam() url.Values {
 	panic("not implemented")
 }
