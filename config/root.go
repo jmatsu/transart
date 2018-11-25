@@ -42,7 +42,7 @@ const (
 
 func (c *LocationConfig) GetLocationType() (LocationType, error) {
 	if c.Has(locationTypeKey) {
-		return NewLocationType(c[locationTypeKey].(string))
+		return NewLocationType((*c)[locationTypeKey].(string))
 	}
 
 	return LocationType(""), fmt.Errorf("%s is missing or an invalid value\n", locationTypeKey)
@@ -54,14 +54,14 @@ func (c *LocationConfig) SetLocationType(t LocationType) {
 
 func (c *LocationConfig) Set(key string, v interface{}) {
 	if lib.IsZeroOrNil(v) {
-		delete(c, key)
+		delete(*c, key)
 	} else {
-		c[key] = lib.Value(v)
+		(*c)[key] = lib.Value(v)
 	}
 }
 
 func (c *LocationConfig) Has(key string) bool {
-	if v, prs := c[key]; prs && !lib.IsZeroOrNil(v) {
+	if v, prs := (*c)[key]; prs && !lib.IsZeroOrNil(v) {
 		return true
 	} else {
 		return false

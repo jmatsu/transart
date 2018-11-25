@@ -50,15 +50,15 @@ func NewCircleCIConfig(lc LocationConfig) (*CircleCIConfig, error) {
 }
 
 func (c *CircleCIConfig) Validate() error {
-	c.setErr(c.getVcsType())
-	c.setErr(c.getUsername())
-	c.setErr(c.getRepoName())
-	c.setErr(c.getFileNamePattern())
+	c.setError(c.getVcsType())
+	c.setError(c.getUsername())
+	c.setError(c.getRepoName())
+	c.setError(c.getFileNamePattern())
 
 	return c.Err
 }
 
-func (c *CircleCIConfig) setErr(_ interface{}, err error) {
+func (c *CircleCIConfig) setError(_ interface{}, err error) {
 	if !lib.IsNil(c.Err) {
 		return
 	}

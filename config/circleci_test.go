@@ -135,7 +135,7 @@ func TestCircleCIConfig_Validate(t *testing.T) {
 	}
 }
 
-var testCircleCIConfig_setErrTests = []struct {
+var testCircleCIConfig_setErrorTests = []struct {
 	in error
 }{
 	{
@@ -146,19 +146,19 @@ var testCircleCIConfig_setErrTests = []struct {
 	},
 }
 
-func TestCircleCIConfig_setErr(t *testing.T) {
-	for i, c := range testCircleCIConfig_setErrTests {
-		t.Run(fmt.Sprintf("TestCircleCIConfig_setErr %d", i), func(t *testing.T) {
+func TestCircleCIConfig_setError(t *testing.T) {
+	for i, c := range testCircleCIConfig_setErrorTests {
+		t.Run(fmt.Sprintf("TestCircleCIConfig_setError %d", i), func(t *testing.T) {
 			ccConfig, _ := NewCircleCIConfig(LocationConfig{
 				locationTypeKey: string(CircleCI),
 			})
 
-			ccConfig.setErr(nil, c.in)
+			ccConfig.setError(nil, c.in)
 
 			assert.EqualValues(t, c.in, ccConfig.Err)
 
 			if c.in != nil {
-				ccConfig.setErr(nil, errors.New("error2"))
+				ccConfig.setError(nil, errors.New("error2"))
 
 				assert.EqualValues(t, c.in, ccConfig.Err)
 			}
