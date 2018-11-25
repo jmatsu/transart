@@ -53,7 +53,7 @@ func NewGitHubConfig(lc LocationConfig) (*GitHubConfig, error) {
 	return config, nil
 }
 
-func (c GitHubConfig) setError(_ interface{}, err error) {
+func (c *GitHubConfig) setError(_ interface{}, err error) {
 	if c.Err != nil {
 		return
 	}
@@ -61,7 +61,7 @@ func (c GitHubConfig) setError(_ interface{}, err error) {
 	c.Err = err
 }
 
-func (c GitHubConfig) Validate() error {
+func (c *GitHubConfig) Validate() error {
 	c.setError(c.getUsername())
 	c.setError(c.getRepoName())
 	c.setError(c.getStrategy())
@@ -69,7 +69,7 @@ func (c GitHubConfig) Validate() error {
 	return c.Err
 }
 
-func (c GitHubConfig) getUsername() (string, error) {
+func (c *GitHubConfig) getUsername() (string, error) {
 	if c.values.Has(usernameKey) {
 		return c.values[usernameKey].(string), nil
 	}
@@ -77,7 +77,7 @@ func (c GitHubConfig) getUsername() (string, error) {
 	return "", fmt.Errorf("%s is missinge\n", usernameKey)
 }
 
-func (c GitHubConfig) GetUsername() string {
+func (c *GitHubConfig) GetUsername() string {
 	if t, err := c.getUsername(); err != nil {
 		panic(err)
 	} else {
@@ -85,11 +85,11 @@ func (c GitHubConfig) GetUsername() string {
 	}
 }
 
-func (c GitHubConfig) SetUsername(v string) {
+func (c *GitHubConfig) SetUsername(v string) {
 	c.values.Set(usernameKey, v)
 }
 
-func (c GitHubConfig) getRepoName() (string, error) {
+func (c *GitHubConfig) getRepoName() (string, error) {
 	if c.values.Has(repoNameKey) {
 		return c.values[repoNameKey].(string), nil
 	}
@@ -97,7 +97,7 @@ func (c GitHubConfig) getRepoName() (string, error) {
 	return "", fmt.Errorf("%s is missing\n", repoNameKey)
 }
 
-func (c GitHubConfig) GetRepoName() string {
+func (c *GitHubConfig) GetRepoName() string {
 	if t, err := c.getRepoName(); err != nil {
 		panic(err)
 	} else {
@@ -105,11 +105,11 @@ func (c GitHubConfig) GetRepoName() string {
 	}
 }
 
-func (c GitHubConfig) SetRepoName(v string) {
+func (c *GitHubConfig) SetRepoName(v string) {
 	c.values.Set(repoNameKey, v)
 }
 
-func (c GitHubConfig) GetApiToken() null.String {
+func (c *GitHubConfig) GetApiToken() null.String {
 	var name string
 
 	if c.values.Has(apiTokenNameKey) {
@@ -125,11 +125,11 @@ func (c GitHubConfig) GetApiToken() null.String {
 	return null.StringFromPtr(nil)
 }
 
-func (c GitHubConfig) SetApiTokenName(v *string) {
+func (c *GitHubConfig) SetApiTokenName(v *string) {
 	c.values.Set(apiTokenNameKey, v)
 }
 
-func (c GitHubConfig) getStrategy() (*GitHubReleaseCreationStrategy, error) {
+func (c *GitHubConfig) getStrategy() (*GitHubReleaseCreationStrategy, error) {
 	if c.values.Has(strategyKey) {
 		v := c.values[strategyKey].(string)
 
@@ -145,7 +145,7 @@ func (c GitHubConfig) getStrategy() (*GitHubReleaseCreationStrategy, error) {
 	return nil, fmt.Errorf("%s is missing\n", strategyKey)
 }
 
-func (c GitHubConfig) GetStrategy() GitHubReleaseCreationStrategy {
+func (c *GitHubConfig) GetStrategy() GitHubReleaseCreationStrategy {
 	if s, err := c.getStrategy(); err != nil {
 		panic(err)
 	} else {
@@ -153,6 +153,6 @@ func (c GitHubConfig) GetStrategy() GitHubReleaseCreationStrategy {
 	}
 }
 
-func (c GitHubConfig) SetStrategy(s GitHubReleaseCreationStrategy) {
+func (c *GitHubConfig) SetStrategy(s GitHubReleaseCreationStrategy) {
 	c.values.Set(strategyKey, string(s))
 }

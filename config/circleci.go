@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/jmatsu/transart/lib"
 	"gopkg.in/guregu/null.v3"
 	"os"
 	"regexp"
@@ -48,7 +49,7 @@ func NewCircleCIConfig(lc LocationConfig) (*CircleCIConfig, error) {
 	return config, nil
 }
 
-func (c CircleCIConfig) Validate() error {
+func (c *CircleCIConfig) Validate() error {
 	c.setErr(c.getVcsType())
 	c.setErr(c.getUsername())
 	c.setErr(c.getRepoName())
@@ -57,23 +58,23 @@ func (c CircleCIConfig) Validate() error {
 	return c.Err
 }
 
-func (c CircleCIConfig) setErr(_ interface{}, err error) {
-	if c.Err != nil {
+func (c *CircleCIConfig) setErr(_ interface{}, err error) {
+	if !lib.IsNil(c.Err) {
 		return
 	}
 
 	c.Err = err
 }
 
-func (c CircleCIConfig) getVcsType() (VcsType, error) {
+func (c *CircleCIConfig) getVcsType() (VcsType, error) {
 	if c.values.Has(vcsTypeKey) {
 		return NewVcsType(c.values[vcsTypeKey].(string))
 	}
 
-	return VcsType(""), fmt.Errorf("%s is missing or an invalid value\n", vcsTypeKey)
+	return VcsType(""), fmt.Errorf("%s is missing or an invalid value", vcsTypeKey)
 }
 
-func (c CircleCIConfig) GetVcsType() VcsType {
+func (c *CircleCIConfig) GetVcsType() VcsType {
 	if t, err := c.getVcsType(); err != nil {
 		panic(err)
 	} else {
@@ -81,11 +82,11 @@ func (c CircleCIConfig) GetVcsType() VcsType {
 	}
 }
 
-func (c CircleCIConfig) SetVcsType(v VcsType) {
+func (c *CircleCIConfig) SetVcsType(v VcsType) {
 	c.values.Set(vcsTypeKey, string(v))
 }
 
-func (c CircleCIConfig) getUsername() (string, error) {
+func (c *CircleCIConfig) getUsername() (string, error) {
 	if c.values.Has(usernameKey) {
 		return c.values[usernameKey].(string), nil
 	}
@@ -93,7 +94,7 @@ func (c CircleCIConfig) getUsername() (string, error) {
 	return "", fmt.Errorf("%s is missinge\n", usernameKey)
 }
 
-func (c CircleCIConfig) GetUsername() string {
+func (c *CircleCIConfig) GetUsername() string {
 	if t, err := c.getUsername(); err != nil {
 		panic(err)
 	} else {
@@ -101,11 +102,11 @@ func (c CircleCIConfig) GetUsername() string {
 	}
 }
 
-func (c CircleCIConfig) SetUsername(v string) {
+func (c *CircleCIConfig) SetUsername(v string) {
 	c.values.Set(usernameKey, v)
 }
 
-func (c CircleCIConfig) getRepoName() (string, error) {
+func (c *CircleCIConfig) getRepoName() (string, error) {
 	if c.values.Has(repoNameKey) {
 		return c.values[repoNameKey].(string), nil
 	}
@@ -113,7 +114,7 @@ func (c CircleCIConfig) getRepoName() (string, error) {
 	return "", fmt.Errorf("%s is missing\n", repoNameKey)
 }
 
-func (c CircleCIConfig) GetRepoName() string {
+func (c *CircleCIConfig) GetRepoName() string {
 	if t, err := c.getRepoName(); err != nil {
 		panic(err)
 	} else {
@@ -121,11 +122,11 @@ func (c CircleCIConfig) GetRepoName() string {
 	}
 }
 
-func (c CircleCIConfig) SetRepoName(v string) {
+func (c *CircleCIConfig) SetRepoName(v string) {
 	c.values.Set(repoNameKey, v)
 }
 
-func (c CircleCIConfig) GetBranch() null.String {
+func (c *CircleCIConfig) GetBranch() null.String {
 	if c.values.Has(branchKey) {
 		return null.StringFrom(c.values[branchKey].(string))
 	}
@@ -133,11 +134,11 @@ func (c CircleCIConfig) GetBranch() null.String {
 	return null.StringFromPtr(nil)
 }
 
-func (c CircleCIConfig) SetBranch(v *string) {
+func (c *CircleCIConfig) SetBranch(v *string) {
 	c.values.Set(branchKey, v)
 }
 
-func (c CircleCIConfig) GetApiToken() null.String {
+func (c *CircleCIConfig) GetApiToken() null.String {
 	var name string
 
 	if c.values.Has(apiTokenNameKey) {
@@ -153,11 +154,11 @@ func (c CircleCIConfig) GetApiToken() null.String {
 	return null.StringFromPtr(nil)
 }
 
-func (c CircleCIConfig) SetApiTokenName(v *string) {
+func (c *CircleCIConfig) SetApiTokenName(v *string) {
 	c.values.Set(apiTokenNameKey, v)
 }
 
-func (c CircleCIConfig) getFileNamePattern() (string, error) {
+func (c *CircleCIConfig) getFileNamePattern() (string, error) {
 	if c.values.Has(fileNamePattern) {
 		pattern := c.values[fileNamePattern].(string)
 
@@ -171,7 +172,7 @@ func (c CircleCIConfig) getFileNamePattern() (string, error) {
 	}
 }
 
-func (c CircleCIConfig) GetFileNamePattern() string {
+func (c *CircleCIConfig) GetFileNamePattern() string {
 	if t, err := c.getFileNamePattern(); err != nil {
 		panic(err)
 	} else {
@@ -179,6 +180,6 @@ func (c CircleCIConfig) GetFileNamePattern() string {
 	}
 }
 
-func (c CircleCIConfig) SetFileNamePattern(v *string) {
+func (c *CircleCIConfig) SetFileNamePattern(v *string) {
 	c.values.Set(fileNamePattern, v)
 }

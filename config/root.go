@@ -40,7 +40,7 @@ const (
 	Local         LocationType = "local"
 )
 
-func (c LocationConfig) GetLocationType() (LocationType, error) {
+func (c *LocationConfig) GetLocationType() (LocationType, error) {
 	if c.Has(locationTypeKey) {
 		return NewLocationType(c[locationTypeKey].(string))
 	}
@@ -48,11 +48,11 @@ func (c LocationConfig) GetLocationType() (LocationType, error) {
 	return LocationType(""), fmt.Errorf("%s is missing or an invalid value\n", locationTypeKey)
 }
 
-func (c LocationConfig) SetLocationType(t LocationType) {
+func (c *LocationConfig) SetLocationType(t LocationType) {
 	c.Set(locationTypeKey, string(t))
 }
 
-func (c LocationConfig) Set(key string, v interface{}) {
+func (c *LocationConfig) Set(key string, v interface{}) {
 	if lib.IsZeroOrNil(v) {
 		delete(c, key)
 	} else {
@@ -60,7 +60,7 @@ func (c LocationConfig) Set(key string, v interface{}) {
 	}
 }
 
-func (c LocationConfig) Has(key string) bool {
+func (c *LocationConfig) Has(key string) bool {
 	if v, prs := c[key]; prs && !lib.IsZeroOrNil(v) {
 		return true
 	} else {

@@ -28,7 +28,7 @@ func NewLocalConfig(lc LocationConfig) (*LocalConfig, error) {
 	return config, nil
 }
 
-func (c LocalConfig) setError(_ interface{}, err error) {
+func (c *LocalConfig) setError(_ interface{}, err error) {
 	if c.Err != nil {
 		return
 	}
@@ -36,14 +36,14 @@ func (c LocalConfig) setError(_ interface{}, err error) {
 	c.Err = err
 }
 
-func (c LocalConfig) Validate() error {
+func (c *LocalConfig) Validate() error {
 	c.setError(c.getPath())
 	c.setError(c.getFileNamePattern())
 
 	return c.Err
 }
 
-func (c LocalConfig) getPath() (string, error) {
+func (c *LocalConfig) getPath() (string, error) {
 	if c.values.Has(pathKey) {
 		return c.values[pathKey].(string), nil
 	}
@@ -51,7 +51,7 @@ func (c LocalConfig) getPath() (string, error) {
 	return "", fmt.Errorf("%s is missinge\n", pathKey)
 }
 
-func (c LocalConfig) GetPath() string {
+func (c *LocalConfig) GetPath() string {
 	if t, err := c.getPath(); err != nil {
 		panic(err)
 	} else {
@@ -59,11 +59,11 @@ func (c LocalConfig) GetPath() string {
 	}
 }
 
-func (c LocalConfig) SetPath(v string) {
+func (c *LocalConfig) SetPath(v string) {
 	c.values.Set(pathKey, v)
 }
 
-func (c LocalConfig) getFileNamePattern() (string, error) {
+func (c *LocalConfig) getFileNamePattern() (string, error) {
 	if c.values.Has(fileNamePattern) {
 		pattern := c.values[fileNamePattern].(string)
 
@@ -79,7 +79,7 @@ func (c LocalConfig) getFileNamePattern() (string, error) {
 	}
 }
 
-func (c LocalConfig) GetFileNamePattern() string {
+func (c *LocalConfig) GetFileNamePattern() string {
 	if t, err := c.getFileNamePattern(); err != nil {
 		panic(err)
 	} else {
@@ -87,6 +87,6 @@ func (c LocalConfig) GetFileNamePattern() string {
 	}
 }
 
-func (c LocalConfig) SetFileNamePattern(v *string) {
+func (c *LocalConfig) SetFileNamePattern(v *string) {
 	c.values.Set(fileNamePattern, v)
 }
