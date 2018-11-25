@@ -36,7 +36,7 @@ func NewGitHubClient(username string, reponame string, token null.String) GitHub
 	}
 }
 
-func (gc GitHubClient) GetDraftRelease() entity.Release {
+func (gc *GitHubClient) GetDraftRelease() entity.Release {
 	var release entity.Release
 
 	if !lib.IsNil(gc.Err) {
@@ -63,7 +63,7 @@ func (gc GitHubClient) GetDraftRelease() entity.Release {
 	return release
 }
 
-func (gc GitHubClient) CreateDraftRelease() entity.Release {
+func (gc *GitHubClient) CreateDraftRelease() entity.Release {
 	var release entity.Release
 
 	if !lib.IsNil(gc.Err) {
@@ -80,7 +80,7 @@ func (gc GitHubClient) CreateDraftRelease() entity.Release {
 	return release
 }
 
-func (gc GitHubClient) UploadFileToRelease(release entity.Release, path string) entity.Asset {
+func (gc *GitHubClient) UploadFileToRelease(release entity.Release, path string) entity.Asset {
 	var asset entity.Asset
 
 	if !lib.IsNil(gc.Err) {

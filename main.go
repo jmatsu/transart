@@ -134,6 +134,11 @@ SUPPORT:
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
+
+		if b, perr := strconv.ParseBool(os.Getenv("TRANSART_DEBUG")); perr == nil && b {
+			panic(err)
+		}
+
 		os.Exit(1)
 	}
 }

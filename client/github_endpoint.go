@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"github.com/jmatsu/transart/lib"
+	"github.com/sirupsen/logrus"
 	"net/url"
 	"strings"
 )
@@ -16,6 +17,8 @@ func gitHubReleaseListEndpoint(username string, repoName string) lib.Endpoint {
 }
 
 func gitHubUploadReleaseEndpoint(uri string) lib.Endpoint {
+	logrus.Debugln(uri)
+
 	return lib.Endpoint{
 		Url:      strings.Split(uri, "{")[0], // hypermedia url will be coming
 		AuthType: lib.HeaderAuth,

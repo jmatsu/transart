@@ -36,7 +36,7 @@ func NewCircleCIClient(vcsType string, username string, reponame string, token n
 	}
 }
 
-func (cc CircleCIClient) GetArtifacts(buildNum uint, prod func(entity.CircleCIArtifact) bool) []entity.CircleCIArtifact {
+func (cc *CircleCIClient) GetArtifacts(buildNum uint, prod func(entity.CircleCIArtifact) bool) []entity.CircleCIArtifact {
 	if !lib.IsNil(cc.Err) {
 		return nil
 	}
@@ -71,7 +71,7 @@ func (cc CircleCIClient) GetArtifacts(buildNum uint, prod func(entity.CircleCIAr
 	return results
 }
 
-func (cc CircleCIClient) DownloadArtifact(artifact entity.CircleCIArtifact) []byte {
+func (cc *CircleCIClient) DownloadArtifact(artifact entity.CircleCIArtifact) []byte {
 	if !lib.IsNil(cc.Err) {
 		return nil
 	}
@@ -86,7 +86,7 @@ func (cc CircleCIClient) DownloadArtifact(artifact entity.CircleCIArtifact) []by
 	return bytes
 }
 
-func (cc CircleCIClient) GetJobInfo(prod func(entity.CircleCIJobInfo) bool) entity.CircleCIJobInfo {
+func (cc *CircleCIClient) GetJobInfo(prod func(entity.CircleCIJobInfo) bool) entity.CircleCIJobInfo {
 	var jobInfo entity.CircleCIJobInfo
 
 	if !lib.IsNil(cc.Err) {

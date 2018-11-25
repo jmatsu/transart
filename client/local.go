@@ -24,19 +24,31 @@ func NewLocalClient(dirPath string) LocalClient {
 	}
 }
 
-func (lc LocalClient) CopyFileFrom(srcPath string) error {
-	return lc.c.CopyFile(srcPath, lc.dirPath)
+func (lc *LocalClient) CopyFileFrom(srcPath string) {
+	if !lib.IsNil(lc.Err) {
+		return
+	}
+
+	lc.Err = lc.c.CopyFile(srcPath, lc.dirPath)
 }
 
-func (lc LocalClient) CopyDirFrom(srcPath string, prod func(string) bool) error {
-	return lc.copyDir(srcPath, lc.dirPath, prod)
+func (lc *LocalClient) CopyDirFrom(srcPath string, prod func(string) bool) {
+	if !lib.IsNil(lc.Err) {
+		return
+	}
+
+	lc.Err = lc.copyDir(srcPath, lc.dirPath, prod)
 }
 
-func (lc LocalClient) CopyDirTo(destPath string, prod func(string) bool) error {
-	return lc.copyDir(lc.dirPath, destPath, prod)
+func (lc *LocalClient) CopyDirTo(destPath string, prod func(string) bool) {
+	if !lib.IsNil(lc.Err) {
+		return
+	}
+
+	lc.Err = lc.copyDir(lc.dirPath, destPath, prod)
 }
 
-func (lc LocalClient) copyDir(srcPath string, destPath string, prod func(string) bool) error {
+func (lc *LocalClient) copyDir(srcPath string, destPath string, prod func(string) bool) error {
 	return lib.ForEachFiles(srcPath, func(dirname string, info os.FileInfo) error {
 		srcPath := fmt.Sprintf("%s/%s", dirname, info.Name())
 
