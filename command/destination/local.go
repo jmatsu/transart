@@ -1,23 +1,33 @@
 package destination
 
 import (
-	"fmt"
+	"github.com/jmatsu/transart/client"
 	"github.com/jmatsu/transart/config"
 	"github.com/jmatsu/transart/lib"
-	"github.com/jmatsu/transart/local"
-	"os"
+	"github.com/pkg/errors"
+	"regexp"
 )
 
-func uploadToLocal(rootConfig config.RootConfig, localConfig config.LocalConfig) error {
-	if err := localConfig.Validate(); err != nil {
-		return err
+func uploadToLocal(rootConfig config.RootConfig, lConfig config.LocalConfig) error {
+	if err := lConfig.Validate(); err != nil {
+		return errors.Wrap(err, "the configuration error happened on local configuration")
 	}
 
-	return lib.ForEachFiles(rootConfig.SaveDir, func(dirname string, info os.FileInfo) error {
-		if err := local.CopyFileFrom(localConfig, fmt.Sprintf("%s/%s", dirname, info.Name())); err != nil {
-			return err
-		}
+	var regex *regexp.Regexp
 
-		return nil
+	if pattern := lConfig.GetFileNamePattern(); pattern != "" {
+		regex = regexp.MustCompile(pattern)
+	}
+
+	lc := client.NewLocalClient(lConfig.GetPath())
+
+	lc.CopyDirFrom(rootConfig.SaveDir, func(s string) bool {
+		return regex != nil && regex.MatchString(s)
 	})
+
+	if !lib.IsNil(lc.Err) {
+		return lc.Err
+	}
+
+	return nil
 }

@@ -2,40 +2,9 @@ package lib
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 )
-
-func CopyFile(srcPath string, destPath string) error {
-	if s, err := os.Stat(srcPath); err != nil {
-		return err
-	} else if !s.Mode().IsRegular() {
-		return fmt.Errorf("%s is not a regular file", srcPath)
-	}
-
-	src, err := os.Open(srcPath)
-
-	if err != nil {
-		return err
-	}
-
-	defer src.Close()
-
-	dest, err := os.Create(destPath)
-
-	if err != nil {
-		return err
-	}
-
-	defer dest.Close()
-
-	if _, err := io.Copy(dest, src); err != nil {
-		return err
-	}
-
-	return nil
-}
 
 func ForEachFiles(dirPath string, action func(dirname string, info os.FileInfo) error) error {
 	fs, err := ioutil.ReadDir(dirPath)
