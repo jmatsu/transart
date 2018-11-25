@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/jmatsu/transart/config"
 	"github.com/jmatsu/transart/lib"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -21,31 +20,21 @@ func CopyFileFrom(localConfig config.LocalConfig, srcPath string) error {
 }
 
 func CopyFilesTo(localConfig config.LocalConfig, destDirPath string) error {
-	fs, err := ioutil.ReadDir(localConfig.GetPath())
+	return lib.ForEachFiles(localConfig.GetPath(), func(dirname string, info os.FileInfo) error {
+		srcPath := fmt.Sprintf("%s/%s", dirname, info.Name())
 
-	if err != nil {
-		return err
-	}
-
-	for _, f := range fs {
-		lib.ForEachFiles(localConfig.GetPath(), f, func(dirname string, info os.FileInfo) error {
-			srcPath := fmt.Sprintf("%s/%s", dirname, info.Name())
-
-			if pattern := localConfig.GetFileNamePattern(); pattern != "" {
-				if !regexp.MustCompile(pattern).MatchString(srcPath) {
-					return nil
-				}
+		if pattern := localConfig.GetFileNamePattern(); pattern != "" {
+			if !regexp.MustCompile(pattern).MatchString(srcPath) {
+				return nil
 			}
+		}
 
-			destPath := fmt.Sprintf("%s/%s", destDirPath, info.Name())
+		destPath := fmt.Sprintf("%s/%s", destDirPath, info.Name())
 
-			if err := lib.CopyFile(srcPath, destPath); err != nil {
-				return err
-			}
+		if err := lib.CopyFile(srcPath, destPath); err != nil {
+			return err
+		}
 
-			return nil
-		})
-	}
-
-	return nil
+		return nil
+	})
 }

@@ -2,7 +2,6 @@ package lib
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -72,21 +71,15 @@ func contains(strs []string, str string) bool {
 }
 
 func TestForEachFiles(t *testing.T) {
-	if fs, err := ioutil.ReadDir(testForEachFiles.dir); err != nil {
-		t.Error(err)
-	} else {
-		for _, f := range fs {
-			err := ForEachFiles(testForEachFiles.dir, f, func(dirname string, info os.FileInfo) error {
-				if !contains(testForEachFiles.files, info.Name()) {
-					return fmt.Errorf("%v doesn't contain %s", testForEachFiles.files, info.Name())
-				}
-
-				return nil
-			})
-
-			if err != nil {
-				t.Error(err)
-			}
+	err := ForEachFiles(testForEachFiles.dir, func(dirname string, info os.FileInfo) error {
+		if !contains(testForEachFiles.files, info.Name()) {
+			return fmt.Errorf("%v doesn't contain %s", testForEachFiles.files, info.Name())
 		}
+
+		return nil
+	})
+
+	if err != nil {
+		t.Error(err)
 	}
 }
