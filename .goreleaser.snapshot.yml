@@ -6,23 +6,23 @@ before:
 builds:
 -
   ldflags:
-    - -s -w -X github.com/jmatsu/transart/version.Version={{.Version}} -X github.com/jmatsu/transart/version.commit={{.Commit}} -X github.com/jmatsu/transart/version.date={{.Date}}
+  - -s -w -X github.com/jmatsu/transart/version.Version={{.Version}} -X github.com/jmatsu/transart/version.commit={{.Commit}} -X github.com/jmatsu/transart/version.date={{.Date}}
   goos:
-    - linux
-    - darwin
-    - windows
+  - linux
+  - darwin
+  - windows
   goarch:
-    - "386"
-    - arm
-    - arm64
-    - amd64
+  - "386"
+  - arm
+  - arm64
+  - amd64
   env:
-    - CGO_ENABLED=0
+  - CGO_ENABLED=0
 archive:
   name_template: 'transart_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
   format_overrides:
-    - goos: windows
-      format: zip
+  - goos: windows
+    format: zip
   replacements:
     darwin: Darwin
     linux: Linux
@@ -47,4 +47,4 @@ release:
   github:
     owner: jmatsu
     name: transart
-  prerelease: false
+  prerelease: true

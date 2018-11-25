@@ -2,8 +2,6 @@ default_env: &default_env
   docker:
     - image: circleci/golang:1.10.3
   working_directory: /go/src/github.com/jmatsu/transart
-  environments:
-    RELEASE_TAG: v0.0.1
 
 version: 2
 jobs:
@@ -33,6 +31,17 @@ jobs:
       - checkout
       - run: *download_dep
       - run: curl -sL https://git.io/goreleaser | bash
+  release_snapshot:
+    <<: *default_env
+    steps:
+      - checkout
+      - run: *download_dep
+      - run:
+        name: Run goreleaser for pre release
+        command: |
+          curl -sLo goreleaser https://git.io/goreleaser
+          chmod +x goreleaser
+          ./goreleaser -f .goreleaser.snapshot.yml
 
 workflows:
   version: 2
@@ -47,7 +56,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v[^-]*$/
-      - release:
+      - release_snapshot:
           filters:
             branches:
               ignore: /.*/
