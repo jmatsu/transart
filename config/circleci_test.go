@@ -50,17 +50,13 @@ var testNewCircleCIConfigTests = []struct {
 }{
 	{
 		LocationConfig{
-			locationTypeKey: []string{
-				string(GitHubRelease),
-			},
+			locationTypeKey: string(GitHubRelease),
 		},
 		true,
 	},
 	{
 		LocationConfig{
-			locationTypeKey: []string{
-				string(CircleCI),
-			},
+			locationTypeKey: string(CircleCI),
 		},
 		false,
 	},
