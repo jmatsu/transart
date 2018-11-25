@@ -103,11 +103,11 @@ SUPPORT:
 			Name:  "transfer",
 			Usage: "Download artifacts and assets from sources, and upload them to the destination",
 			Action: requireProject(func(_ *cli.Context, project config.Project) error {
-				if err := source.NewDownloadAction().Source(project.RootConfig); err != nil {
+				if err := source.NewDownloadAction().Run(project.RootConfig); err != nil {
 					return err
 				}
 
-				if err := destination.NewUploadAction().Destination(project.RootConfig); err != nil {
+				if err := destination.NewUploadAction().Run(project.RootConfig); err != nil {
 					return err
 				}
 
@@ -118,14 +118,14 @@ SUPPORT:
 			Name:  "download",
 			Usage: "Download artifacts and assets from sources",
 			Action: requireProject(func(_ *cli.Context, project config.Project) error {
-				return source.NewDownloadAction().Source(project.RootConfig)
+				return source.NewDownloadAction().Run(project.RootConfig)
 			}),
 		},
 		{
 			Name:  "upload",
 			Usage: "Upload artifacts and assets the destination",
 			Action: requireProject(func(_ *cli.Context, project config.Project) error {
-				return destination.NewUploadAction().Destination(project.RootConfig)
+				return destination.NewUploadAction().Run(project.RootConfig)
 			}),
 		},
 	}

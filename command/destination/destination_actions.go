@@ -1,30 +1,19 @@
-package command
+package destination
 
 import (
+	"fmt"
 	"github.com/jmatsu/transart/config"
 )
 
-type Actions struct {
-	CircleCI      func(rootConfig config.RootConfig, circleCIConfig config.CircleCIConfig) error
+type DestinationActions struct {
+	// CircleCI cannot be supported
 	GitHubRelease func(rootConfig config.RootConfig, gitHubConfig config.GitHubConfig) error
 	Local         func(rootConfig config.RootConfig, localConfig config.LocalConfig) error
 }
 
-func (a Actions) Source(rootConfig config.RootConfig) error {
-	for _, lc := range rootConfig.Source.Locations {
-		if err := a.run(rootConfig, lc); err != nil {
-			return err
-		}
-	}
+func (a DestinationActions) Run(rootConfig config.RootConfig) error {
+	lc := rootConfig.Destination.Location
 
-	return nil
-}
-
-func (a Actions) Destination(rootConfig config.RootConfig) error {
-	return a.run(rootConfig, rootConfig.Destination.Location)
-}
-
-func (a Actions) run(rootConfig config.RootConfig, lc config.LocationConfig) error {
 	t, err := lc.GetLocationType()
 
 	if err != nil {
@@ -33,15 +22,7 @@ func (a Actions) run(rootConfig config.RootConfig, lc config.LocationConfig) err
 
 	switch t {
 	case config.CircleCI:
-		c, err := config.NewCircleCIConfig(lc)
-
-		if err != nil {
-			return err
-		}
-
-		if err := a.CircleCI(rootConfig, *c); err != nil {
-			return err
-		}
+		return fmt.Errorf("%v is not supported", t)
 	case config.GitHubRelease:
 		c, err := config.NewGitHubConfig(lc)
 
