@@ -37,11 +37,11 @@ jobs:
       - checkout
       - run: *download_dep
       - run:
-        name: Run goreleaser for pre release
-        command: |
-          curl -sLo goreleaser https://git.io/goreleaser
-          chmod +x goreleaser
-          ./goreleaser -f .goreleaser.snapshot.yml
+          name: Run goreleaser for pre release
+          command: |
+            curl -sLo goreleaser https://git.io/goreleaser
+            chmod +x goreleaser
+            ./goreleaser -f .goreleaser.snapshot.yml
 
 workflows:
   version: 2
