@@ -2,7 +2,9 @@
 
 # transart
 
-transart - Transfer artifacts from services to the single service
+transart - Transfer artifacts from multiple services to the single service
+
+Concurrent downloading, uploading and copying are supported by Goroutine.
 
 ```bash
 transart [-f <configuration file>] <command> [command options...]
@@ -27,7 +29,7 @@ go build .
 ## Getting started
 
 ```bash
-# Create the configuration file
+# Create .transart.yml
 transart init --save-dir ".transart"
 
 # Configure GitHub Release as a *source* service
@@ -57,9 +59,11 @@ transart upload
 
 ### Supported services
 
-- CircleCI (source only)
-- GitHub Release (destination only)
-- Local file system
+Service|Source|Destination
+:---|:---|:---
+CircleCI| :white_check_mark: | :x:
+GitHub Release| will be supported | :white_check_mark:
+Local File System| :white_check_mark: | :white_check_mark:
 
 ### Configurations
 
@@ -77,11 +81,11 @@ destination:
 
 #### Location config
 
-ref. [](../config/option_key.go)
+ref. [key definitions](../config/option_key.go)
+
+`add` command is available to add each configuration of services.
 
 *CircleCI*
-
-Only source is supported
 
 ```yaml
 type: circleci
@@ -95,8 +99,6 @@ api-token-name: <environment name> #CIRCLECI_TOKEN is used by default
 ```
 
 *GitHub Release*
-
-Only distination is supported
 
 ```yaml
 type: github-release
