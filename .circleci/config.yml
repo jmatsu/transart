@@ -25,6 +25,7 @@ jobs:
       - run: dep ensure
       - run: go build .
       - run: go test -v ./...
+      - run: go vet ./...
       - run: ./scripts/make_diff_by_go-fmt
   release:
     <<: *default_env
