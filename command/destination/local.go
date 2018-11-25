@@ -22,7 +22,7 @@ func uploadToLocal(rootConfig config.RootConfig, lConfig config.LocalConfig) err
 	lc := client.NewLocalClient(lConfig.GetPath())
 
 	lc.CopyDirFrom(rootConfig.SaveDir, func(s string) bool {
-		return regex != nil && regex.MatchString(s)
+		return regex == nil || regex.MatchString(s)
 	})
 
 	if !lib.IsNil(lc.Err) {

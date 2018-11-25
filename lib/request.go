@@ -94,7 +94,7 @@ func GetRequest(endpoint Endpoint, token Token, values url.Values) ([]byte, erro
 	if endpoint.Accept != "" {
 		req.Header.Set("Accept", endpoint.Accept)
 	} else {
-		panic("accept header is not found")
+		logrus.Debugln("accept header is not found")
 	}
 
 	req.Header.Set("User-Agent", version.UserAgent())

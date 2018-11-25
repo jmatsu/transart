@@ -35,7 +35,7 @@ func downloadFromCircleCI(rootConfig config.RootConfig, ccConfig config.CircleCI
 	}
 
 	artifacts := ccClient.GetArtifacts(jobInfo.BuildNum, func(artifact entity.CircleCIArtifact) bool {
-		return regex != nil && regex.MatchString(artifact.Path)
+		return regex == nil || regex.MatchString(artifact.Path)
 	})
 
 	if !lib.IsNil(ccClient.Err) {

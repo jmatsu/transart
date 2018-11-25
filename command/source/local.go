@@ -22,7 +22,7 @@ func downloadFromLocal(rootConfig config.RootConfig, lConfig config.LocalConfig)
 	lc := client.NewLocalClient(lConfig.GetPath())
 
 	lc.CopyDirTo(rootConfig.SaveDir, func(s string) bool {
-		return regex != nil && regex.MatchString(s)
+		return regex == nil || regex.MatchString(s)
 	})
 
 	if !lib.IsNil(lc.Err) {
