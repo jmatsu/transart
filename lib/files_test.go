@@ -4,22 +4,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"testing"
 )
 
-func getFixturePath(filename string) string {
-	if out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output(); err != nil {
-		panic(err)
+func getTestDataPath(filename string) string {
+	if filename != "" {
+		return fmt.Sprintf("testdata/%s", filename)
 	} else {
-		// drop \n
-		dir := fmt.Sprintf("%s/fixture", out[0:len(out)-1])
-
-		if filename != "" {
-			return fmt.Sprintf("%s/%s", dir, filename)
-		} else {
-			return dir
-		}
+		return "testdata"
 	}
 }
 
@@ -28,12 +20,12 @@ var testCopyFileTests = []struct {
 	dest string
 }{
 	{
-		getFixturePath("copiee.txt"),
-		getFixturePath("copiee.txt.copied"),
+		getTestDataPath("copiee.txt"),
+		getTestDataPath("copiee.txt.copied"),
 	},
 	{
-		getFixturePath("copiee2.txt"),
-		getFixturePath("copiee2.txt.copied"),
+		getTestDataPath("copiee2.txt"),
+		getTestDataPath("copiee2.txt.copied"),
 	},
 }
 
@@ -61,7 +53,7 @@ var testForEachFiles = struct {
 	dir   string
 	files []string
 }{
-	getFixturePath(""),
+	getTestDataPath(""),
 	[]string{
 		"copiee.txt",
 		"copiee2.txt",
