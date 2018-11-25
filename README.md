@@ -4,7 +4,7 @@
 
 transart - Transfer artifacts from services to the single service
 
-```
+```bash
 transart [-f <configuration file>] <command> [command options...]
 ```
 
@@ -12,21 +12,21 @@ transart [-f <configuration file>] <command> [command options...]
 
 Download the binary directly
 
-```
+```bash
 curl -sL "https://raw.githubusercontent.com/jmatsu/transart/master/install.bash" | bash
 curl -sL "https://raw.githubusercontent.com/jmatsu/transart/master/install.bash" | VERSION=<...> bash
 ```
 
 Or build on your local
 
-```
+```bash
 dep ensure
 go build .
 ```
 
 ## Getting started
 
-```
+```bash
 # Create the configuration file
 transart init --save-dir ".transart"
 
@@ -81,7 +81,7 @@ ref. [](../config/option_key.go)
 
 *CircleCI*
 
-```
+```yaml
 type: github-release
 strategy: <draft|create|draft_or_create>
 vcs-type: <github|bitbucket>
@@ -95,7 +95,7 @@ api-token-name: <environment name> #CIRCLECI_TOKEN is used by default
 
 *GitHub Release*
 
-```
+```yaml
 type: github-release
 strategy: <draft|create|draft_or_create>
 username: <the username of the repository>
@@ -107,7 +107,7 @@ api-token-name: <environment name> #GITHUB_TOKEN is used by default
 
 *Local file system*
 
-```
+```yaml
 type: local
 path: <path>
 
@@ -117,7 +117,7 @@ file-name-pattern: <regexp pattern>
 
 ### Bash/Zsh completion
 
-```
+```bash
 // For Bash
 eval $(transart --init-completion bash)
 transart --init-completion bash >> ~/.bashrc
