@@ -3,6 +3,7 @@ package source
 import (
 	"fmt"
 	"github.com/jmatsu/transart/config"
+	"golang.org/x/sync/errgroup"
 )
 
 type Actions struct {
@@ -12,13 +13,17 @@ type Actions struct {
 }
 
 func (a Actions) Run(rootConfig config.RootConfig) error {
-	for _, lc := range rootConfig.Source.Locations {
-		if err := a.run(rootConfig, lc); err != nil {
-			return err
-		}
+	eg := errgroup.Group{}
+
+	for _, location := range rootConfig.Source.Locations {
+		l := location
+
+		eg.Go(func() error {
+			return a.run(rootConfig, l)
+		})
 	}
 
-	return nil
+	return eg.Wait()
 }
 
 func (a Actions) run(rootConfig config.RootConfig, lc config.LocationConfig) error {
