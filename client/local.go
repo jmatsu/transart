@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"github.com/jmatsu/transart/lib"
+	"golang.org/x/sync/errgroup"
 	"io"
 	"os"
 )
@@ -49,21 +50,28 @@ func (lc *LocalClient) CopyDirTo(destPath string, prod func(string) bool) {
 }
 
 func (lc *LocalClient) copyDir(srcPath string, destPath string, prod func(string) bool) error {
-	return lib.ForEachFiles(srcPath, func(dirname string, info os.FileInfo) error {
-		srcPath := fmt.Sprintf("%s/%s", dirname, info.Name())
+	eg := errgroup.Group{}
 
-		if !prod(srcPath) {
-			return nil
-		}
+	err := lib.ForEachFiles(srcPath, func(dirname string, info os.FileInfo) error {
+		eg.Go(func() error {
+			srcFilePath := fmt.Sprintf("%s/%s", dirname, info.Name())
 
-		destPath := fmt.Sprintf("%s/%s", destPath, info.Name())
+			if !prod(srcFilePath) {
+				return nil
+			}
 
-		if err := lc.c.CopyFile(srcPath, destPath); err != nil {
-			return err
-		}
+			destFilePath := fmt.Sprintf("%s/%s", destPath, info.Name())
+			return lc.c.CopyFile(srcFilePath, destFilePath)
+		})
 
 		return nil
 	})
+
+	if err != nil {
+		return err
+	}
+
+	return eg.Wait()
 }
 
 type localImpl struct {

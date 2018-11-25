@@ -7,6 +7,7 @@ import (
 	"github.com/jmatsu/transart/config"
 	"github.com/jmatsu/transart/lib"
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -42,27 +43,35 @@ func downloadFromCircleCI(rootConfig config.RootConfig, ccConfig config.CircleCI
 		return errors.Wrap(ccClient.Err, "retrieving artifact information has failed")
 	}
 
+	eg := errgroup.Group{}
+
 	for _, artifact := range artifacts {
-		if bytes := ccClient.DownloadArtifact(artifact); ccClient.Err != nil {
-			return errors.Wrap(ccClient.Err, "")
-		} else {
-			filename := filepath.Base(artifact.Path)
+		a := artifact
 
-			if f, err := os.Stat(rootConfig.SaveDir); os.IsNotExist(err) {
-				if err := os.MkdirAll(rootConfig.SaveDir, os.ModePerm); err != nil {
-					return err
+		eg.Go(func() error {
+			if bytes := ccClient.DownloadArtifact(a); ccClient.Err != nil {
+				return errors.Wrap(ccClient.Err, fmt.Sprintf("downloading failed for %s", a.Path))
+			} else {
+				filename := filepath.Base(a.Path)
+
+				if f, err := os.Stat(rootConfig.SaveDir); os.IsNotExist(err) {
+					if err := os.MkdirAll(rootConfig.SaveDir, os.ModePerm); err != nil {
+						return err
+					}
+				} else if !f.IsDir() {
+					return fmt.Errorf("%s already exists but it's a file", rootConfig.SaveDir)
 				}
-			} else if !f.IsDir() {
-				return fmt.Errorf("%s already exists but it's a file", rootConfig.SaveDir)
+
+				err := ioutil.WriteFile(fmt.Sprintf("%s/%s", rootConfig.SaveDir, filename), bytes, 0644)
+
+				if err != nil {
+					return errors.Wrap(err, fmt.Sprintf("writing files failed for %s", a.Path))
+				}
 			}
 
-			err := ioutil.WriteFile(fmt.Sprintf("%s/%s", rootConfig.SaveDir, filename), bytes, 0644)
-
-			if err != nil {
-				return errors.Wrap(err, fmt.Sprintf("downloading failed for %s", artifact.Path))
-			}
-		}
+			return nil
+		})
 	}
 
-	return nil
+	return eg.Wait()
 }

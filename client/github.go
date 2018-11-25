@@ -94,7 +94,8 @@ func (gc *GitHubClient) UploadFileToRelease(release entity.Release, path string)
 		return asset
 	}
 
-	logrus.Debugf("%s has been uploaded\n", asset.Name)
+	logrus.Infof("%s has been uploaded\n", asset.Name)
+	logrus.Debugf("%v\n", asset)
 
 	return asset
 }

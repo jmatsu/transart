@@ -162,6 +162,8 @@ func PostRequest(endpoint Endpoint, token Token, values url.Values, body []byte)
 
 	if bodyBytes, err := ioutil.ReadAll(resp.Body); err != nil {
 		return nil, err
+	} else if resp.StatusCode < 200 || 300 <= resp.StatusCode {
+		return nil, fmt.Errorf("failed to request due to : %s", string(bodyBytes))
 	} else {
 		return bodyBytes, nil
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/guregu/null.v3"
+	"sync"
 )
 
 type CircleCI interface {
@@ -55,13 +56,25 @@ func (cc *CircleCIClient) GetArtifacts(buildNum uint, prod func(entity.CircleCIA
 
 	var results []entity.CircleCIArtifact
 
+	wg := sync.WaitGroup{}
+
 	for _, a := range artifacts {
-		if prod(a) {
-			results = append(results, a)
-		} else {
-			logrus.Debugf("%s was skipped\n", a.Path)
-		}
+		wg.Add(1)
+
+		go func(a entity.CircleCIArtifact) {
+			logrus.Debugf("Found %s in artifacts\n", a.Path)
+
+			if prod(a) {
+				results = append(results, a)
+			} else {
+				logrus.Debugf("%s was skipped\n", a.Path)
+			}
+
+			wg.Done()
+		}(a)
 	}
+
+	wg.Wait()
 
 	if len(results) == 0 {
 		cc.Err = errors.New("no target artifact was found")

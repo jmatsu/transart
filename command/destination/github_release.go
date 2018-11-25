@@ -8,6 +8,7 @@ import (
 	"github.com/jmatsu/transart/lib"
 	"github.com/pkg/errors"
 	"os"
+	"sync"
 )
 
 func uploadToGithubRelease(rootConfig config.RootConfig, ghConfig config.GitHubConfig) error {
@@ -37,9 +38,24 @@ func uploadToGithubRelease(rootConfig config.RootConfig, ghConfig config.GitHubC
 		return errors.Wrap(ghClient.Err, "cannot prepare the release to be updated")
 	}
 
-	return lib.ForEachFiles(rootConfig.SaveDir, func(dirname string, info os.FileInfo) error {
-		_ = ghClient.UploadFileToRelease(releaseToBeUpdated, fmt.Sprintf("%s/%s", dirname, info.Name()))
+	wg := sync.WaitGroup{}
 
-		return ghClient.Err
+	err := lib.ForEachFiles(rootConfig.SaveDir, func(dirname string, info os.FileInfo) error {
+		wg.Add(1)
+
+		go func() {
+			ghClient.UploadFileToRelease(releaseToBeUpdated, fmt.Sprintf("%s/%s", dirname, info.Name()))
+			wg.Done()
+		}()
+
+		return nil
 	})
+
+	if err != nil {
+		return err
+	}
+
+	wg.Wait()
+
+	return ghClient.Err
 }
