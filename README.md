@@ -81,9 +81,10 @@ ref. [](../config/option_key.go)
 
 *CircleCI*
 
+Only source is supported
+
 ```yaml
-type: github-release
-strategy: <draft|create|draft_or_create>
+type: circleci
 vcs-type: <github|bitbucket>
 username: <the username of the project> # case sensitive
 reponame: <the name of the project> # case sensitive
@@ -94,6 +95,8 @@ api-token-name: <environment name> #CIRCLECI_TOKEN is used by default
 ```
 
 *GitHub Release*
+
+Only distination is supported
 
 ```yaml
 type: github-release
