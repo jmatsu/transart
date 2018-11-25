@@ -13,17 +13,19 @@ type gitHubToken struct {
 }
 
 func newGitHubToken(t null.String) lib.Token {
-	if !t.Valid {
-		return nil
+	var token *gitHubToken
+
+	if t.Valid {
+		token = &gitHubToken{
+			token: t.String,
+		}
 	}
 
-	return &gitHubToken{
-		token: t.String,
-	}
+	return token
 }
 
 func (t *gitHubToken) SetToHeader(request *http.Request) {
-	if t != nil {
+	if !lib.IsNil(t) {
 		request.Header.Set("Authorization", fmt.Sprintf("token %s", t.token))
 	}
 }

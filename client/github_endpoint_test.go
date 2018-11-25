@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-var testReleaseListEndpointTests = []struct {
+var testGitHubReleaseListEndpointTests = []struct {
 	username string
 	repoName string
 	out      string
@@ -24,9 +24,9 @@ var testReleaseListEndpointTests = []struct {
 	},
 }
 
-func TestReleaseListEndpoint(t *testing.T) {
-	for i, c := range testReleaseListEndpointTests {
-		t.Run(fmt.Sprintf("TestReleaseListEndpoint %d", i), func(t *testing.T) {
+func TestGitHubReleaseListEndpoint(t *testing.T) {
+	for i, c := range testGitHubReleaseListEndpointTests {
+		t.Run(fmt.Sprintf("TestGitHubReleaseListEndpoint %d", i), func(t *testing.T) {
 			endpoint := gitHubReleaseListEndpoint(c.username, c.repoName)
 			assert.EqualValues(t, c.out, endpoint.Url)
 			assert.EqualValues(t, "application/vnd.github.v3+json", endpoint.Accept)
@@ -35,7 +35,7 @@ func TestReleaseListEndpoint(t *testing.T) {
 	}
 }
 
-var testUploadReleaseEndpointTests = []struct {
+var testGitHubUploadReleaseEndpointTests = []struct {
 	in  string
 	out string
 }{
@@ -49,9 +49,9 @@ var testUploadReleaseEndpointTests = []struct {
 	},
 }
 
-func TestUploadReleaseEndpoint(t *testing.T) {
-	for i, c := range testUploadReleaseEndpointTests {
-		t.Run(fmt.Sprintf("TestUploadReleaseEndpoint %d", i), func(t *testing.T) {
+func TestGitHubUploadReleaseEndpoint(t *testing.T) {
+	for i, c := range testGitHubUploadReleaseEndpointTests {
+		t.Run(fmt.Sprintf("TestGitHubUploadReleaseEndpoint %d", i), func(t *testing.T) {
 			endpoint := gitHubUploadReleaseEndpoint(c.in)
 			assert.EqualValues(t, c.out, endpoint.Url)
 			assert.EqualValues(t, "application/vnd.github.v3+json", endpoint.Accept)
@@ -60,11 +60,11 @@ func TestUploadReleaseEndpoint(t *testing.T) {
 	}
 }
 
-var testCreateReleaseEndpointTests = testReleaseListEndpointTests
+var testGitHubCreateReleaseEndpointTests = testGitHubReleaseListEndpointTests
 
-func TestCreateReleaseEndpoint(t *testing.T) {
-	for i, c := range testCreateReleaseEndpointTests {
-		t.Run(fmt.Sprintf("TestCreateReleaseEndpoint %d", i), func(t *testing.T) {
+func TestGitHubCreateReleaseEndpoint(t *testing.T) {
+	for i, c := range testGitHubCreateReleaseEndpointTests {
+		t.Run(fmt.Sprintf("TestGitHubCreateReleaseEndpoint %d", i), func(t *testing.T) {
 			endpoint := gitHubCreateReleaseEndpoint(c.username, c.repoName)
 			assert.EqualValues(t, c.out, endpoint.Url)
 			assert.EqualValues(t, "application/vnd.github.v3+json", endpoint.Accept)

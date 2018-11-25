@@ -1,6 +1,6 @@
 package entity
 
-type JobInfo struct {
+type CircleCIJobInfo struct {
 	BuildNum        uint              `json:"build_num"`
 	BuildParameters map[string]string `json:"build_parameters"`
 	BuildUrl        string            `json:"build_url"`
@@ -14,10 +14,10 @@ type JobInfo struct {
 	VcsRevision     string            `json:"vcs_revision"`
 }
 
-func (j JobInfo) GetBuildJobName() string {
+func (j CircleCIJobInfo) GetBuildJobName() string {
 	return j.BuildParameters["CIRCLE_JOB"]
 }
 
-func (j JobInfo) HasFinished() bool {
+func (j CircleCIJobInfo) HasFinished() bool {
 	return j.Lifecycle == "finished"
 }

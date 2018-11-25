@@ -1,4 +1,4 @@
-package circleci
+package client
 
 import (
 	"encoding/base64"
@@ -8,28 +8,28 @@ import (
 	"net/url"
 )
 
-type Token struct {
+type circleCIToken struct {
 	token string
 }
 
-func NewToken(t null.String) *Token {
+func newCircleCIToken(t null.String) *circleCIToken {
 	if !t.Valid {
 		return nil
 	}
 
-	return &Token{
+	return &circleCIToken{
 		token: t.String,
 	}
 }
 
-func (t *Token) SetToHeader(request *http.Request) {
+func (t *circleCIToken) SetToHeader(request *http.Request) {
 	if t != nil {
 		token := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:", t.token)))
 		request.Header.Set("Authorization", fmt.Sprintf("Basic %s", token))
 	}
 }
 
-func (t *Token) ToParam() url.Values {
+func (t *circleCIToken) ToParam() url.Values {
 	if t == nil {
 		return nil
 	}

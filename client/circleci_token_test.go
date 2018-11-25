@@ -1,4 +1,4 @@
-package circleci
+package client
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-var testNewTokenTests = []struct {
+var testNewCircleCITokenTests = []struct {
 	in  null.String
 	out string
 }{
@@ -22,10 +22,10 @@ var testNewTokenTests = []struct {
 	},
 }
 
-func TestNewToken(t *testing.T) {
-	for i, c := range testNewTokenTests {
-		t.Run(fmt.Sprintf("TestNewToken %d", i), func(t *testing.T) {
-			token := NewToken(c.in)
+func TestNewCircleCIToken(t *testing.T) {
+	for i, c := range testNewCircleCITokenTests {
+		t.Run(fmt.Sprintf("TestNewCircleCIToken %d", i), func(t *testing.T) {
+			token := newCircleCIToken(c.in)
 
 			if c.out == "" {
 				assert.Nil(t, token)
@@ -36,12 +36,12 @@ func TestNewToken(t *testing.T) {
 	}
 }
 
-var testToken_SetToHeaderTests = []struct {
-	in  *Token
+var testCircleCIToken_SetToHeaderTests = []struct {
+	in  *circleCIToken
 	out string
 }{
 	{
-		&Token{
+		&circleCIToken{
 			token: "XYZ",
 		},
 		"Basic WFlaOg==",
@@ -52,9 +52,9 @@ var testToken_SetToHeaderTests = []struct {
 	},
 }
 
-func TestToken_SetToHeader(t *testing.T) {
-	for i, c := range testToken_SetToHeaderTests {
-		t.Run(fmt.Sprintf("TestToken_SetToHeader %d", i), func(t *testing.T) {
+func TestCircleCIToken_SetToHeader(t *testing.T) {
+	for i, c := range testCircleCIToken_SetToHeaderTests {
+		t.Run(fmt.Sprintf("TestCircleCIToken_SetToHeader %d", i), func(t *testing.T) {
 			request := http.Request{
 				Header: make(http.Header),
 			}
@@ -67,11 +67,11 @@ func TestToken_SetToHeader(t *testing.T) {
 }
 
 var testToken_ToParamTests = []struct {
-	in  *Token
+	in  *circleCIToken
 	out string
 }{
 	{
-		&Token{
+		&circleCIToken{
 			token: "XYZ",
 		},
 		"XYZ",
@@ -82,9 +82,9 @@ var testToken_ToParamTests = []struct {
 	},
 }
 
-func TestToken_ToParam(t *testing.T) {
+func TestCircleCIToken_ToParam(t *testing.T) {
 	for i, c := range testToken_ToParamTests {
-		t.Run(fmt.Sprintf("TestToken_ToParam %d", i), func(t *testing.T) {
+		t.Run(fmt.Sprintf("TestCircleCIToken_ToParam %d", i), func(t *testing.T) {
 			param := c.in.ToParam()
 
 			if c.out == "" {

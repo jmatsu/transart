@@ -38,7 +38,7 @@ var testGitHubAsset_IsUploadedTests = []struct {
 
 func TestGitHubAsset_IsUploaded(t *testing.T) {
 	for i, c := range testGitHubAsset_IsUploadedTests {
-		t.Run(fmt.Sprintf("TestAsset_IsUploaded %d", i), func(t *testing.T) {
+		t.Run(fmt.Sprintf("TestGitHubAsset_IsUploaded %d", i), func(t *testing.T) {
 			bytes := []byte(fmt.Sprintf("{\"state\": \"%s\"}", c.in))
 
 			asset := Asset{}

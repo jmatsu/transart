@@ -6,10 +6,10 @@ import (
 	"testing"
 )
 
-func TestArtifact(t *testing.T) {
+func TestCircleCIArtifact(t *testing.T) {
 	bytes := []byte("{\"pretty_path\": \"this is a pretty path\",\"path\": \"this is a path\",\"url\": \"this is a url\"}")
 
-	artifact := Artifact{}
+	artifact := CircleCIArtifact{}
 
 	if err := json.Unmarshal(bytes, &artifact); err != nil {
 		t.Error(err)

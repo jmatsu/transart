@@ -18,14 +18,14 @@ var testGitHubToken_SetToHeaderTests = []struct {
 		"token XYZ",
 	},
 	{
-		nil,
+		newGitHubToken(null.StringFromPtr(nil)),
 		"",
 	},
 }
 
 func TestGitHubToken_SetToHeader(t *testing.T) {
 	for i, c := range testGitHubToken_SetToHeaderTests {
-		t.Run(fmt.Sprintf("TestToken_SetToHeader %d", i), func(t *testing.T) {
+		t.Run(fmt.Sprintf("TestGitHubToken_SetToHeader %d", i), func(t *testing.T) {
 			request := http.Request{
 				Header: make(http.Header),
 			}

@@ -7,19 +7,7 @@ import (
 	"testing"
 )
 
-//BuildNum        uint              `json:"build_num"`
-//BuildParameters map[string]string `json:"build_parameters"`
-//BuildUrl        string            `json:"build_url"`
-//Branch          string            `json:"branch"`
-//HasArtifact     bool              `json:"has_artifacts"`
-//Lifecycle       string            `json:"lifecycle"`
-//Subject         string            `json:"subject"`
-//Username        string            `json:"username"`
-//RepoName        string            `json:"reponame"`
-//VcsType         string            `json:"vcs_type"`
-//VcsRevision     string            `json:"vcs_revision"`
-
-func TestJobInfo(t *testing.T) {
+func TestCircleCIJobInfo(t *testing.T) {
 	bytes := []byte("{" +
 		"\"build_num\": 1," +
 		"\"build_parameters\": { \"CIRCLE_JOB\": \"build\" }," +
@@ -34,7 +22,7 @@ func TestJobInfo(t *testing.T) {
 		"\"vcs_revision\": \"this is a vcs revision\"" +
 		"}")
 
-	jobInfo := JobInfo{}
+	jobInfo := CircleCIJobInfo{}
 
 	if err := json.Unmarshal(bytes, &jobInfo); err != nil {
 		t.Error(err)
@@ -53,18 +41,18 @@ func TestJobInfo(t *testing.T) {
 	}
 }
 
-func TestJobInfo_GetBuildJobName(t *testing.T) {
+func TestCircleCIJobInfo_GetBuildJobName(t *testing.T) {
 	bytes := []byte("{" +
 		"\"build_parameters\": { \"CIRCLE_JOB\": \"build\" }" +
 		"}")
 
-	jobInfo := JobInfo{}
+	jobInfo := CircleCIJobInfo{}
 	json.Unmarshal(bytes, &jobInfo)
 
 	assert.EqualValues(t, "build", jobInfo.GetBuildJobName())
 }
 
-var testJobInfo_HasFinishedTests = []struct {
+var testCircleCIJobInfo_HasFinishedTests = []struct {
 	in  string
 	out bool
 }{
@@ -78,12 +66,12 @@ var testJobInfo_HasFinishedTests = []struct {
 	},
 }
 
-func TestJobInfo_HasFinished(t *testing.T) {
-	for i, c := range testJobInfo_HasFinishedTests {
-		t.Run(fmt.Sprintf("TestJobInfo_HasFinished %d", i), func(t *testing.T) {
+func TestCircleCIJobInfo_HasFinished(t *testing.T) {
+	for i, c := range testCircleCIJobInfo_HasFinishedTests {
+		t.Run(fmt.Sprintf("TestCircleCIJobInfo_HasFinished %d", i), func(t *testing.T) {
 			bytes := []byte(fmt.Sprintf("{\"lifecycle\": \"%s\"}", c.in))
 
-			jobInfo := JobInfo{}
+			jobInfo := CircleCIJobInfo{}
 			json.Unmarshal(bytes, &jobInfo)
 
 			assert.EqualValues(t, c.out, jobInfo.HasFinished())

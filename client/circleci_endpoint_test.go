@@ -1,15 +1,15 @@
-package circleci
+package client
 
 import (
 	"fmt"
-	"github.com/jmatsu/transart/circleci/entity"
+	"github.com/jmatsu/transart/client/entity"
 	"github.com/jmatsu/transart/lib"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/guregu/null.v3"
 	"testing"
 )
 
-var testBaseApiUrlTests = []struct {
+var testCircleCIBaseApiUrlTests = []struct {
 	vcsType  string
 	username string
 	repoName string
@@ -29,16 +29,16 @@ var testBaseApiUrlTests = []struct {
 	},
 }
 
-func TestBaseApiUrl(t *testing.T) {
-	for i, c := range testBaseApiUrlTests {
-		t.Run(fmt.Sprintf("TestBaseApiUrl %d", i), func(t *testing.T) {
-			url := baseApiUrl(c.vcsType, c.username, c.repoName)
+func TestCircleCIBaseApiUrl(t *testing.T) {
+	for i, c := range testCircleCIBaseApiUrlTests {
+		t.Run(fmt.Sprintf("TestCircleCIBaseApiUrl %d", i), func(t *testing.T) {
+			url := baseCircleCIApiUrl(c.vcsType, c.username, c.repoName)
 			assert.EqualValues(t, c.out, url)
 		})
 	}
 }
 
-var testJobInfoListEndpointTests = []struct {
+var testCircleCIJobInfoListEndpointTests = []struct {
 	vcsType  string
 	username string
 	repoName string
@@ -61,10 +61,10 @@ var testJobInfoListEndpointTests = []struct {
 	},
 }
 
-func TestJobInfoListEndpoint(t *testing.T) {
-	for i, c := range testJobInfoListEndpointTests {
-		t.Run(fmt.Sprintf("TestJobInfoListEndpoint %d", i), func(t *testing.T) {
-			endpoint := JobInfoListEndpoint(c.vcsType, c.username, c.repoName, c.branch)
+func TestCircleCIJobInfoListEndpoint(t *testing.T) {
+	for i, c := range testCircleCIJobInfoListEndpointTests {
+		t.Run(fmt.Sprintf("TestCircleCIJobInfoListEndpoint %d", i), func(t *testing.T) {
+			endpoint := circleCIJobInfoListEndpoint(c.vcsType, c.username, c.repoName, c.branch)
 			assert.EqualValues(t, c.out, endpoint.Url)
 			assert.EqualValues(t, "application/json", endpoint.Accept)
 			assert.EqualValues(t, lib.HeaderAuth, endpoint.AuthType)
@@ -72,7 +72,7 @@ func TestJobInfoListEndpoint(t *testing.T) {
 	}
 }
 
-var testArtifactListEndpointTests = []struct {
+var testCircleCIArtifactListEndpointTests = []struct {
 	vcsType  string
 	username string
 	repoName string
@@ -88,10 +88,10 @@ var testArtifactListEndpointTests = []struct {
 	},
 }
 
-func TestArtifactListEndpoint(t *testing.T) {
-	for i, c := range testArtifactListEndpointTests {
-		t.Run(fmt.Sprintf("TestArtifactListEndpoint %d", i), func(t *testing.T) {
-			endpoint := ArtifactListEndpoint(c.vcsType, c.username, c.repoName, c.buildNum)
+func TestCircleCIArtifactListEndpoint(t *testing.T) {
+	for i, c := range testCircleCIArtifactListEndpointTests {
+		t.Run(fmt.Sprintf("TestCircleCIArtifactListEndpoint %d", i), func(t *testing.T) {
+			endpoint := circleCIArtifactListEndpoint(c.vcsType, c.username, c.repoName, c.buildNum)
 			assert.EqualValues(t, c.out, endpoint.Url)
 			assert.EqualValues(t, "application/json", endpoint.Accept)
 			assert.EqualValues(t, lib.HeaderAuth, endpoint.AuthType)
@@ -99,22 +99,22 @@ func TestArtifactListEndpoint(t *testing.T) {
 	}
 }
 
-var testDownloadArtifactEndpointTests = []struct {
-	in  entity.Artifact
+var testCircleCIDownloadArtifactEndpointTests = []struct {
+	in  entity.CircleCIArtifact
 	out string
 }{
 	{
-		entity.Artifact{
+		entity.CircleCIArtifact{
 			DownloadUrl: "https://circleci.com/api/v1.1/project/sample",
 		},
 		"https://circleci.com/api/v1.1/project/sample",
 	},
 }
 
-func TestDownloadArtifactEndpoint(t *testing.T) {
-	for i, c := range testDownloadArtifactEndpointTests {
-		t.Run(fmt.Sprintf("TestDownloadArtifactEndpoint %d", i), func(t *testing.T) {
-			endpoint := DownloadArtifactEndpoint(c.in)
+func TestCircleCIDownloadArtifactEndpoint(t *testing.T) {
+	for i, c := range testCircleCIDownloadArtifactEndpointTests {
+		t.Run(fmt.Sprintf("TestCircleCIDownloadArtifactEndpoint %d", i), func(t *testing.T) {
+			endpoint := circleCIDownloadArtifactEndpoint(c.in)
 			assert.EqualValues(t, c.out, endpoint.Url)
 			assert.EqualValues(t, lib.ParameterAuth, endpoint.AuthType)
 		})
