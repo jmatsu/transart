@@ -1,8 +1,6 @@
 package config
 
 import (
-	"errors"
-	"fmt"
 	"github.com/jmatsu/transart/config"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -11,7 +9,7 @@ func Validate(_ *cli.Context, project config.Project) error {
 	rootConfig := project.RootConfig
 
 	if rootConfig.Version < 1 {
-		return errors.New("version must be greater than 0")
+		return invalidVersion
 	}
 
 	for _, lc := range rootConfig.Source.Locations {
@@ -26,7 +24,7 @@ func Validate(_ *cli.Context, project config.Project) error {
 					return err
 				}
 			case config.GitHubRelease:
-				return fmt.Errorf("%s as source service is not supported", t)
+				return sourceNotSupported(t)
 			case config.Local:
 				if c, err := config.NewLocalConfig(lc); err != nil {
 					return err
@@ -44,7 +42,7 @@ func Validate(_ *cli.Context, project config.Project) error {
 	} else {
 		switch t {
 		case config.CircleCI:
-			return fmt.Errorf("%s as source service is not supported", t)
+			return destinationNotSupported(t)
 		case config.GitHubRelease:
 			if c, err := config.NewGitHubConfig(lc); err != nil {
 				return err

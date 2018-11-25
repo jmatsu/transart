@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -29,7 +28,7 @@ func CreateAddLocationFlags() []cli.Flag {
 
 func commonVerifyForAddingConfig(c *cli.Context) error {
 	if !c.IsSet(sourceOptionKey) && !c.IsSet(destinationOptionKey) {
-		return fmt.Errorf("either of --%s or --%s is required", sourceOptionKey, destinationOptionKey)
+		return locationTypeIsRequired
 	}
 
 	return nil

@@ -55,7 +55,7 @@ func CreateCircleCIConfig(c *cli.Context, project config.Project) error {
 	}
 
 	if c.IsSet(destinationOptionKey) {
-		return destinationNotSupported
+		return destinationNotSupported(config.CircleCI)
 	}
 
 	lc := config.LocationConfig{}
