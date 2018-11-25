@@ -138,17 +138,19 @@ func (c CircleCIConfig) SetBranch(v *string) {
 }
 
 func (c CircleCIConfig) GetApiToken() null.String {
+	var name string
+
 	if c.values.Has(apiTokenNameKey) {
-		name := c.values[apiTokenNameKey].(string)
-
-		if v, ok := os.LookupEnv(name); ok {
-			return null.StringFrom(v)
-		}
-
-		return null.StringFromPtr(nil)
+		name = c.values[apiTokenNameKey].(string)
 	} else {
-		return null.StringFromPtr(nil)
+		name = "CIRCLECI_TOKEN"
 	}
+
+	if v, ok := os.LookupEnv(name); ok {
+		return null.StringFrom(v)
+	}
+
+	return null.StringFromPtr(nil)
 }
 
 func (c CircleCIConfig) SetApiTokenName(v *string) {

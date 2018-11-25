@@ -4,10 +4,13 @@
 
 transart - Transfer artifacts from services to the single service
 
+```
+transart [-f <configuration file>] <command> [command options...]
+```
 
 ## Installation
 
-Download the binary
+Download the binary directly
 
 ```
 curl -sL "https://raw.githubusercontent.com/jmatsu/transart/master/install.bash" | bash
@@ -24,16 +27,21 @@ go build .
 ## Getting started
 
 ```
-# Prepare the configuration file
+# Create the configuration file
 transart init --save-dir ".transart"
 
 # Configure GitHub Release as a *source* service
-transart add github-release --source \
-    --username jmatsu --reponame transart --api-token-name GITHUB_TOKEN
-    --file-name-pattern ".*.tar"
+transart add github-release \
+    --source \
+    --username jmatsu \
+    --reponame transart \
+    --api-token-name GITHUB_TOKEN \
+    --file-name-pattern ".*\.tar$" # tar files only
 
 # Configure Local file system as a *destination* service
-transart add local --destination --path tmp
+transart add local \
+    --destination \
+    --path tmp # use ./tmp directory
 
 export GITHUB_TOKEN=...
 
@@ -45,6 +53,66 @@ transart download
 
 # Upload artifacts only
 transart upload
+```
+
+### Supported services
+
+- CircleCI (source only)
+- GitHub Release (destination only)
+- Local file system
+
+### Configurations
+
+#### Basic structure
+
+```
+version: 1
+save_dir: <path>
+source:
+  locations:
+  - <location config>
+destination:
+  location: <location config>
+```
+
+#### Location config
+
+ref. [](../config/option_key.go)
+
+*CircleCI*
+
+```
+type: github-release
+strategy: <draft|create|draft_or_create>
+vcs-type: <github|bitbucket>
+username: <the username of the project> # case sensitive
+reponame: <the name of the project> # case sensitive
+
+# optional
+branch: <the name of the branch>
+api-token-name: <environment name> #CIRCLECI_TOKEN is used by default
+```
+
+*GitHub Release*
+
+```
+type: github-release
+strategy: <draft|create|draft_or_create>
+username: <the username of the repository>
+reponame: <the name of the respoitory>
+
+# optional
+api-token-name: <environment name> #GITHUB_TOKEN is used by default
+```
+
+*Local file system*
+
+```
+type: local
+path: <path>
+
+# optional
+file-name-pattern: <regexp pattern>
 ```
 
 ### Bash/Zsh completion

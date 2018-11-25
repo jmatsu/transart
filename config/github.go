@@ -110,17 +110,19 @@ func (c GitHubConfig) SetRepoName(v string) {
 }
 
 func (c GitHubConfig) GetApiToken() null.String {
+	var name string
+
 	if c.values.Has(apiTokenNameKey) {
-		name := c.values[apiTokenNameKey].(string)
-
-		if v, ok := os.LookupEnv(name); ok {
-			return null.StringFrom(v)
-		}
-
-		return null.StringFromPtr(nil)
+		name = c.values[apiTokenNameKey].(string)
 	} else {
-		return null.StringFromPtr(nil)
+		name = "GITHUB_TOKEN"
 	}
+
+	if v, ok := os.LookupEnv(name); ok {
+		return null.StringFrom(v)
+	}
+
+	return null.StringFromPtr(nil)
 }
 
 func (c GitHubConfig) SetApiTokenName(v *string) {
