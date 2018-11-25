@@ -1,7 +1,7 @@
 package source
 
-func NewDownloadAction() SourceActions {
-	return SourceActions{
+func NewDownloadAction() Actions {
+	return Actions{
 		CircleCI: downloadFromCircleCI,
 		Local:    downloadFromLocal,
 	}

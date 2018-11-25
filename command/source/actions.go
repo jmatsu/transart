@@ -5,13 +5,13 @@ import (
 	"github.com/jmatsu/transart/config"
 )
 
-type SourceActions struct {
+type Actions struct {
 	CircleCI func(rootConfig config.RootConfig, circleCIConfig config.CircleCIConfig) error
 	// TODO GitHubRelease
 	Local func(rootConfig config.RootConfig, localConfig config.LocalConfig) error
 }
 
-func (a SourceActions) Run(rootConfig config.RootConfig) error {
+func (a Actions) Run(rootConfig config.RootConfig) error {
 	for _, lc := range rootConfig.Source.Locations {
 		if err := a.run(rootConfig, lc); err != nil {
 			return err
@@ -21,7 +21,7 @@ func (a SourceActions) Run(rootConfig config.RootConfig) error {
 	return nil
 }
 
-func (a SourceActions) run(rootConfig config.RootConfig, lc config.LocationConfig) error {
+func (a Actions) run(rootConfig config.RootConfig, lc config.LocationConfig) error {
 	t, err := lc.GetLocationType()
 
 	if err != nil {

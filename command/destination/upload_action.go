@@ -1,7 +1,7 @@
 package destination
 
-func NewUploadAction() DestinationActions {
-	return DestinationActions{
+func NewUploadAction() Actions {
+	return Actions{
 		GitHubRelease: uploadToGithubRelease,
 		Local:         uploadToLocal,
 	}

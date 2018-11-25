@@ -5,13 +5,13 @@ import (
 	"github.com/jmatsu/transart/config"
 )
 
-type DestinationActions struct {
+type Actions struct {
 	// CircleCI cannot be supported
 	GitHubRelease func(rootConfig config.RootConfig, gitHubConfig config.GitHubConfig) error
 	Local         func(rootConfig config.RootConfig, localConfig config.LocalConfig) error
 }
 
-func (a DestinationActions) Run(rootConfig config.RootConfig) error {
+func (a Actions) Run(rootConfig config.RootConfig) error {
 	lc := rootConfig.Destination.Location
 
 	t, err := lc.GetLocationType()
