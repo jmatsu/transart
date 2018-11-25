@@ -72,8 +72,6 @@ func (c *LocalConfig) getFileNamePattern() (string, error) {
 		} else {
 			return pattern, nil
 		}
-
-		return "", nil
 	} else {
 		return "", nil
 	}
