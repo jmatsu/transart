@@ -9,7 +9,7 @@ import (
 func TestGitHubArtifact(t *testing.T) {
 	bytes := []byte("{\"id\": 1, \"url\": \"this is a url\",\"upload_url\": \"this is a upload_url\",\"tag_name\": \"this is a tag_name\", \"draft\": true }")
 
-	release := Release{}
+	release := GitHubRelease{}
 
 	if err := json.Unmarshal(bytes, &release); err != nil {
 		t.Error(err)

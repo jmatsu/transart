@@ -1,6 +1,6 @@
 package entity
 
-type Release struct {
+type GitHubRelease struct {
 	Id                    uint   `json:"id"`
 	Url                   string `json:"url"`
 	UploadUrlInHypermedia string `json:"upload_url"`

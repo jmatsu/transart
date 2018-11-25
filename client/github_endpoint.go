@@ -33,3 +33,19 @@ func gitHubCreateReleaseEndpoint(username string, repoName string) lib.Endpoint 
 		Accept:   "application/vnd.github.v3+json",
 	}
 }
+
+func gitHubAssetListEndpoint(username string, repoName string, releaseId uint) lib.Endpoint {
+	return lib.Endpoint{
+		Url:      fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/%d/assets", url.PathEscape(username), url.PathEscape(repoName), releaseId),
+		AuthType: lib.HeaderAuth,
+		Accept:   "application/vnd.github.v3+json",
+	}
+}
+
+func gitHubAssetEndpoint(username string, repoName string, assetId uint) lib.Endpoint {
+	return lib.Endpoint{
+		Url:      fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/assets/%d", url.PathEscape(username), url.PathEscape(repoName), assetId),
+		AuthType: lib.HeaderAuth,
+		Accept:   "application/vnd.github.v3+json",
+	}
+}

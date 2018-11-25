@@ -14,9 +14,11 @@ import (
 )
 
 type GitHub interface {
-	CreateDraftRelease(username string, reponame string, token lib.Token) (entity.Release, error)
-	GetReleases(username string, reponame string, token lib.Token) ([]entity.Release, error)
-	UploadToRelease(username string, reponame string, token lib.Token, release entity.Release, path string) (entity.Asset, error)
+	CreateDraftRelease(username string, reponame string, token lib.Token) (entity.GitHubRelease, error)
+	GetReleases(username string, reponame string, token lib.Token) ([]entity.GitHubRelease, error)
+	GetAssets(username string, reponame string, token lib.Token, release entity.GitHubRelease) ([]entity.GitHubAsset, error)
+	AttachFileToRelease(username string, reponame string, token lib.Token, release entity.GitHubRelease, path string) (entity.GitHubAsset, error)
+	DeleteAsset(username string, reponame string, token lib.Token, asset entity.GitHubAsset) error
 }
 
 type GitHubClient struct {
@@ -36,8 +38,8 @@ func NewGitHubClient(username string, reponame string, token null.String) GitHub
 	}
 }
 
-func (gc *GitHubClient) GetDraftRelease() entity.Release {
-	var release entity.Release
+func (gc *GitHubClient) GetDraftRelease() entity.GitHubRelease {
+	var release entity.GitHubRelease
 
 	if !lib.IsNil(gc.Err) {
 		return release
@@ -63,8 +65,8 @@ func (gc *GitHubClient) GetDraftRelease() entity.Release {
 	return release
 }
 
-func (gc *GitHubClient) CreateDraftRelease() entity.Release {
-	var release entity.Release
+func (gc *GitHubClient) CreateDraftRelease() entity.GitHubRelease {
+	var release entity.GitHubRelease
 
 	if !lib.IsNil(gc.Err) {
 		return release
@@ -80,14 +82,29 @@ func (gc *GitHubClient) CreateDraftRelease() entity.Release {
 	return release
 }
 
-func (gc *GitHubClient) UploadFileToRelease(release entity.Release, path string) entity.Asset {
-	var asset entity.Asset
+func (gc *GitHubClient) GetAssets(release entity.GitHubRelease) []entity.GitHubAsset {
+	if !lib.IsNil(gc.Err) {
+		return nil
+	}
+
+	assets, err := gc.c.GetAssets(gc.username, gc.reponame, gc.token, release)
+
+	if err != nil {
+		gc.Err = err
+		return nil
+	}
+
+	return assets
+}
+
+func (gc *GitHubClient) UploadFileToRelease(release entity.GitHubRelease, path string) entity.GitHubAsset {
+	var asset entity.GitHubAsset
 
 	if !lib.IsNil(gc.Err) {
 		return asset
 	}
 
-	asset, err := gc.c.UploadToRelease(gc.username, gc.reponame, gc.token, release, path)
+	asset, err := gc.c.AttachFileToRelease(gc.username, gc.reponame, gc.token, release, path)
 
 	if err != nil {
 		gc.Err = err
@@ -100,11 +117,27 @@ func (gc *GitHubClient) UploadFileToRelease(release entity.Release, path string)
 	return asset
 }
 
+func (gc *GitHubClient) DeleteAssetFromRelease(asset entity.GitHubAsset) {
+	if !lib.IsNil(gc.Err) {
+		return
+	}
+
+	err := gc.c.DeleteAsset(gc.username, gc.reponame, gc.token, asset)
+
+	if err != nil {
+		gc.Err = err
+		return
+	}
+
+	logrus.Infof("%s has been deleted\n", asset.Name)
+	logrus.Debugf("%v\n", asset)
+}
+
 type gitHubImpl struct {
 }
 
-func (gh gitHubImpl) CreateDraftRelease(username string, reponame string, token lib.Token) (entity.Release, error) {
-	var release entity.Release
+func (gh gitHubImpl) CreateDraftRelease(username string, reponame string, token lib.Token) (entity.GitHubRelease, error) {
+	var release entity.GitHubRelease
 
 	body := struct {
 		A string `json:"tag_name"`
@@ -137,8 +170,8 @@ func (gh gitHubImpl) CreateDraftRelease(username string, reponame string, token 
 	return release, nil
 }
 
-func (gh gitHubImpl) GetReleases(username string, reponame string, token lib.Token) ([]entity.Release, error) {
-	var releases []entity.Release
+func (gh gitHubImpl) GetReleases(username string, reponame string, token lib.Token) ([]entity.GitHubRelease, error) {
+	var releases []entity.GitHubRelease
 
 	apiEndpoint := gitHubReleaseListEndpoint(username, reponame)
 
@@ -152,8 +185,24 @@ func (gh gitHubImpl) GetReleases(username string, reponame string, token lib.Tok
 	return releases, nil
 }
 
-func (gh gitHubImpl) UploadToRelease(username string, reponame string, token lib.Token, release entity.Release, path string) (entity.Asset, error) {
-	var asset entity.Asset
+func (gh gitHubImpl) GetAssets(username string, reponame string, token lib.Token, release entity.GitHubRelease) ([]entity.GitHubAsset, error) {
+	var assets []entity.GitHubAsset
+
+	apiEndpoint := gitHubAssetListEndpoint(username, reponame, release.Id)
+
+	if bytes, err := lib.GetRequest(apiEndpoint, token, nil); err != nil {
+		return nil, err
+	} else if err := json.Unmarshal(bytes, &assets); err != nil {
+		err = errors.Wrap(err, "an error happened while parsing the response as json")
+		return nil, err
+	}
+
+	return assets, nil
+
+}
+
+func (gh gitHubImpl) AttachFileToRelease(username string, reponame string, token lib.Token, release entity.GitHubRelease, path string) (entity.GitHubAsset, error) {
+	var asset entity.GitHubAsset
 
 	fileBytes, err := ioutil.ReadFile(path)
 
@@ -177,4 +226,12 @@ func (gh gitHubImpl) UploadToRelease(username string, reponame string, token lib
 	}
 
 	return asset, nil
+}
+
+func (gh gitHubImpl) DeleteAsset(username string, reponame string, token lib.Token, asset entity.GitHubAsset) error {
+	endpoint := gitHubAssetEndpoint(username, reponame, asset.Id)
+
+	_, err := lib.DeleteRequest(endpoint, token, nil)
+
+	return err
 }

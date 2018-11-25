@@ -1,12 +1,12 @@
 package entity
 
-type Asset struct {
+type GitHubAsset struct {
 	Id          uint   `json:"id"`
 	UploadState string `json:"state"`
 	Name        string `json:"name"`
 	Size        uint   `json:"size"`
 }
 
-func (a Asset) IsUploaded() bool {
+func (a GitHubAsset) IsUploaded() bool {
 	return a.UploadState == "uploaded"
 }

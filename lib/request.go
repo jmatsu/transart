@@ -168,3 +168,53 @@ func PostRequest(endpoint Endpoint, token Token, values url.Values, body []byte)
 		return bodyBytes, nil
 	}
 }
+
+func DeleteRequest(endpoint Endpoint, token Token, values url.Values) ([]byte, error) {
+	if values == nil {
+		values = url.Values{}
+	}
+
+	if endpoint.AuthType == ParameterAuth {
+		values = MergeParams(values, token.ToParam())
+	}
+
+	query := values.Encode()
+
+	uri := fmt.Sprintf("%s?%s", endpoint.Url, query)
+
+	logrus.Debugf("Request to %s\n", uri)
+
+	req, err := http.NewRequest(http.MethodDelete, uri, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if endpoint.Accept != "" {
+		req.Header.Set("Accept", endpoint.Accept)
+	} else {
+		req.Header.Set("Accept", "application/json")
+	}
+
+	req.Header.Set("User-Agent", version.UserAgent())
+
+	if endpoint.AuthType == HeaderAuth {
+		token.SetToHeader(req)
+	}
+
+	resp, err := new(http.Client).Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	if bodyBytes, err := ioutil.ReadAll(resp.Body); err != nil {
+		return nil, err
+	} else if resp.StatusCode < 200 || 300 <= resp.StatusCode {
+		return nil, fmt.Errorf("failed to request due to : %s", string(bodyBytes))
+	} else {
+		return bodyBytes, nil
+	}
+}

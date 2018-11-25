@@ -10,7 +10,7 @@ import (
 func TestGitHubAsset(t *testing.T) {
 	bytes := []byte("{\"id\": 10, \"state\": \"this is a state\", \"name\": \"this is a name\", \"size\": 1}")
 
-	asset := Asset{}
+	asset := GitHubAsset{}
 
 	if err := json.Unmarshal(bytes, &asset); err != nil {
 		t.Error(err)
@@ -41,7 +41,7 @@ func TestGitHubAsset_IsUploaded(t *testing.T) {
 		t.Run(fmt.Sprintf("TestGitHubAsset_IsUploaded %d", i), func(t *testing.T) {
 			bytes := []byte(fmt.Sprintf("{\"state\": \"%s\"}", c.in))
 
-			asset := Asset{}
+			asset := GitHubAsset{}
 			json.Unmarshal(bytes, &asset)
 
 			assert.EqualValues(t, c.out, asset.IsUploaded())

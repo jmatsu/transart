@@ -18,7 +18,7 @@ func uploadToGithubRelease(rootConfig config.RootConfig, ghConfig config.GitHubC
 
 	ghClient := client.NewGitHubClient(ghConfig.GetUsername(), ghConfig.GetRepoName(), ghConfig.GetApiToken())
 
-	var releaseToBeUpdated entity.Release
+	var releaseToBeUpdated entity.GitHubRelease
 
 	switch ghConfig.GetStrategy() {
 	case config.Create:
@@ -38,13 +38,27 @@ func uploadToGithubRelease(rootConfig config.RootConfig, ghConfig config.GitHubC
 		return errors.Wrap(ghClient.Err, "cannot prepare the release to be updated")
 	}
 
+	assets := ghClient.GetAssets(releaseToBeUpdated)
+
+	if !lib.IsNil(ghClient.Err) {
+		return errors.Wrap(ghClient.Err, "cannot get the existing assets")
+	}
+
 	wg := sync.WaitGroup{}
 
 	err := lib.ForEachFiles(rootConfig.SaveDir, func(dirname string, info os.FileInfo) error {
 		wg.Add(1)
 
 		go func() {
+			for _, a := range assets {
+				if info.Name() == a.Name {
+					ghClient.DeleteAssetFromRelease(a)
+					break
+				}
+			}
+
 			ghClient.UploadFileToRelease(releaseToBeUpdated, fmt.Sprintf("%s/%s", dirname, info.Name()))
+
 			wg.Done()
 		}()
 
