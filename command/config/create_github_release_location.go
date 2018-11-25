@@ -43,6 +43,10 @@ func CreateGithubReleaseConfig(c *cli.Context, project config.Project) error {
 		return err
 	}
 
+	if c.IsSet(sourceOptionKey) {
+		return sourceNotSupported
+	}
+
 	lc := config.LocationConfig{}
 
 	lc.SetLocationType(config.GitHubRelease)

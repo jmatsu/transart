@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/jmatsu/transart/config"
+	"github.com/pkg/errors"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -52,6 +53,10 @@ func CreateCircleCIConfigFlags() []cli.Flag {
 func CreateCircleCIConfig(c *cli.Context, project config.Project) error {
 	if err := commonVerifyForAddingConfig(c); err != nil {
 		return err
+	}
+
+	if c.IsSet(destinationOptionKey) {
+		return destinationNotSupported
 	}
 
 	lc := config.LocationConfig{}
