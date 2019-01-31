@@ -14,15 +14,31 @@ func getTestDataPath(filename string) string {
 	}
 }
 
-var testForEachFiles = struct {
-	dir   string
-	files []string
+var testForEachFilesTests = []struct {
+	in  string
+	out []string
 }{
-	getTestDataPath(""),
-	[]string{
-		"copiee.txt",
-		"copiee2.txt",
-		"nested_copiee.txt",
+	{
+		getTestDataPath(""),
+		[]string{
+			"copiee.txt",
+			"copiee2.txt",
+			"nested_copiee.txt",
+			"nested2_copiee.txt",
+		},
+	},
+	{
+		getTestDataPath("nested"),
+		[]string{
+			"nested_copiee.txt",
+			"nested2_copiee.txt",
+		},
+	},
+	{
+		getTestDataPath("nested/nested2"),
+		[]string{
+			"nested2_copiee.txt",
+		},
 	},
 }
 
@@ -37,15 +53,19 @@ func contains(strs []string, str string) bool {
 }
 
 func TestForEachFiles(t *testing.T) {
-	err := ForEachFiles(testForEachFiles.dir, func(dirname string, info os.FileInfo) error {
-		if !contains(testForEachFiles.files, info.Name()) {
-			return fmt.Errorf("%v doesn't contain %s", testForEachFiles.files, info.Name())
-		}
+	for i, c := range testForEachFilesTests {
+		t.Run(fmt.Sprintf("TestForEachFiles %d", i), func(t *testing.T) {
+			err := ForEachFiles(c.in, func(dirname string, info os.FileInfo) error {
+				if !contains(c.out, info.Name()) {
+					return fmt.Errorf("%v doesn't contain %s", c.out, info.Name())
+				}
 
-		return nil
-	})
+				return nil
+			})
 
-	if err != nil {
-		t.Error(err)
+			if err != nil {
+				t.Error(err)
+			}
+		})
 	}
 }

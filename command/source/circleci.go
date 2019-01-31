@@ -9,7 +9,6 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"regexp"
 )
@@ -53,14 +52,6 @@ func downloadFromCircleCI(rootConfig config.RootConfig, ccConfig config.CircleCI
 				return errors.Wrap(ccClient.Err, fmt.Sprintf("downloading failed for %s", a.Path))
 			} else {
 				filename := filepath.Base(a.Path)
-
-				if f, err := os.Stat(rootConfig.SaveDir); os.IsNotExist(err) {
-					if err := os.MkdirAll(rootConfig.SaveDir, os.ModePerm); err != nil {
-						return err
-					}
-				} else if !f.IsDir() {
-					return fmt.Errorf("%s already exists but it's a file", rootConfig.SaveDir)
-				}
 
 				err := ioutil.WriteFile(fmt.Sprintf("%s/%s", rootConfig.SaveDir, filename), bytes, 0644)
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jmatsu/transart/config"
 	"golang.org/x/sync/errgroup"
+	"os"
 )
 
 type Actions struct {
@@ -13,6 +14,14 @@ type Actions struct {
 }
 
 func (a Actions) Run(rootConfig config.RootConfig) error {
+	if f, err := os.Stat(rootConfig.SaveDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(rootConfig.SaveDir, os.ModePerm); err != nil {
+			return err
+		}
+	} else if !f.IsDir() {
+		return fmt.Errorf("intermediate directory - %s -  already exists but it's a file", rootConfig.SaveDir)
+	}
+
 	eg := errgroup.Group{}
 
 	for _, location := range rootConfig.Source.Locations {
