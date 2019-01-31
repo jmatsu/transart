@@ -37,13 +37,14 @@ transart add github-release \
     --source \
     --username jmatsu \
     --reponame transart \
-    --api-token-name GITHUB_TOKEN \
-    --file-name-pattern ".*\.tar$" # tar files only
+    --api-token-name GITHUB_TOKEN
 
 # Configure Local file system as a *destination* service
+# save files into tmp directory
 transart add local \
     --destination \
-    --path tmp # use ./tmp directory
+    --path tmp \
+    --file-name-pattern ".*\.tar$" # tar files only
 
 export GITHUB_TOKEN=...
 
@@ -102,7 +103,7 @@ api-token-name: <environment name> #CIRCLECI_TOKEN is used by default
 
 ```yaml
 type: github-release
-strategy: <draft|create|draft_or_create>
+strategy: <draft|create|draft-or-create>
 username: <the username of the repository>
 reponame: <the name of the respoitory>
 
