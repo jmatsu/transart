@@ -22,17 +22,7 @@ func ForEachFiles(dirPath string, action func(dirname string, info os.FileInfo) 
 
 func applyToFileOrFindDirectory(dirname string, f os.FileInfo, action func(dirname string, info os.FileInfo) error) error {
 	if f.IsDir() {
-		fs, err := ioutil.ReadDir(fmt.Sprintf("%s/%s", dirname, f.Name()))
-
-		if err != nil {
-			return err
-		}
-
-		for _, f := range fs {
-			if err := applyToFileOrFindDirectory(fmt.Sprintf("%s/%s", dirname, f.Name()), f, action); err != nil {
-				return err
-			}
-		}
+		return ForEachFiles(fmt.Sprintf("%s/%s", dirname, f.Name()), action)
 	} else if err := action(dirname, f); err != nil {
 		return err
 	}
