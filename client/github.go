@@ -19,6 +19,7 @@ type GitHub interface {
 	GetAssets(username string, reponame string, token lib.Token, release entity.GitHubRelease) ([]entity.GitHubAsset, error)
 	AttachFileToRelease(username string, reponame string, token lib.Token, release entity.GitHubRelease, path string) (entity.GitHubAsset, error)
 	DeleteAsset(username string, reponame string, token lib.Token, asset entity.GitHubAsset) error
+	DownloadAsset(username string, reponame string, token lib.Token, asset entity.GitHubAsset) ([]byte, error)
 }
 
 type GitHubClient struct {
@@ -82,6 +83,30 @@ func (gc *GitHubClient) CreateDraftRelease() entity.GitHubRelease {
 	return release
 }
 
+func (gc *GitHubClient) GetLatestRelease() entity.GitHubRelease {
+	var release entity.GitHubRelease
+
+	if !lib.IsNil(gc.Err) {
+		return release
+	}
+
+	releases, err := gc.c.GetReleases(gc.username, gc.reponame, gc.token)
+
+	if err != nil {
+		gc.Err = err
+		return release
+	}
+
+	if len(releases) == 0 {
+		gc.Err = errors.New("no release found")
+		return release
+	}
+
+	release = releases[0]
+
+	return release
+}
+
 func (gc *GitHubClient) GetAssets(release entity.GitHubRelease) []entity.GitHubAsset {
 	if !lib.IsNil(gc.Err) {
 		return nil
@@ -131,6 +156,21 @@ func (gc *GitHubClient) DeleteAssetFromRelease(asset entity.GitHubAsset) {
 
 	logrus.Infof("%s has been deleted\n", asset.Name)
 	logrus.Debugf("%v\n", asset)
+}
+
+func (gc *GitHubClient) DownloadAsset(asset entity.GitHubAsset) []byte {
+	if !lib.IsNil(gc.Err) {
+		return nil
+	}
+
+	bytes, err := gc.c.DownloadAsset(gc.username, gc.reponame, gc.token, asset)
+
+	if err != nil {
+		gc.Err = err
+		return nil
+	}
+
+	return bytes
 }
 
 type gitHubImpl struct {
@@ -234,4 +274,14 @@ func (gh gitHubImpl) DeleteAsset(username string, reponame string, token lib.Tok
 	_, err := lib.DeleteRequest(endpoint, token, nil)
 
 	return err
+}
+
+func (gh gitHubImpl) DownloadAsset(username string, reponame string, token lib.Token, asset entity.GitHubAsset) ([]byte, error) {
+	endpoint := gitHubAssetDownloadEndpoint(asset.DownloadBrowserUrl)
+
+	if bytes, err := lib.GetRequest(endpoint, token, nil); err != nil {
+		return nil, err
+	} else {
+		return bytes, nil
+	}
 }

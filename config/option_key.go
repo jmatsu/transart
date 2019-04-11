@@ -19,7 +19,7 @@ const (
 	// github, circleci
 	apiTokenNameKey = "api-token-name"
 
-	// circleci, local
+	// github, circleci, local
 	fileNamePattern = "file-name-pattern"
 
 	// github

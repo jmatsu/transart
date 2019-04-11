@@ -8,9 +8,9 @@ import (
 )
 
 type Actions struct {
-	CircleCI func(rootConfig config.RootConfig, circleCIConfig config.CircleCIConfig) error
-	// TODO GitHubRelease
-	Local func(rootConfig config.RootConfig, localConfig config.LocalConfig) error
+	CircleCI      func(rootConfig config.RootConfig, circleCIConfig config.CircleCIConfig) error
+	GitHubRelease func(rootConfig config.RootConfig, gitHubConfig config.GitHubConfig) error
+	Local         func(rootConfig config.RootConfig, localConfig config.LocalConfig) error
 }
 
 func (a Actions) Run(rootConfig config.RootConfig) error {
@@ -54,7 +54,15 @@ func (a Actions) run(rootConfig config.RootConfig, lc config.LocationConfig) err
 			return err
 		}
 	case config.GitHubRelease:
-		return fmt.Errorf("%v is not supported", t)
+		c, err := config.NewGitHubConfig(lc)
+
+		if err != nil {
+			return err
+		}
+
+		if err := a.GitHubRelease(rootConfig, *c); err != nil {
+			return err
+		}
 	case config.Local:
 		c, err := config.NewLocalConfig(lc)
 

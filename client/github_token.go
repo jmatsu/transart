@@ -31,5 +31,12 @@ func (t *gitHubToken) SetToHeader(request *http.Request) {
 }
 
 func (t *gitHubToken) ToParam() url.Values {
-	panic("not implemented")
+	if !lib.IsNil(t) {
+		return nil
+	}
+
+	return url.Values(
+		map[string][]string{
+			"access_token": {t.token},
+		})
 }
