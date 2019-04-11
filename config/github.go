@@ -2,8 +2,10 @@ package config
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/guregu/null.v3"
 	"os"
+	"regexp"
 )
 
 type (
@@ -17,8 +19,8 @@ type (
 
 const (
 	Draft         GitHubReleaseCreationStrategy = "draft"
-	DraftOrCreate                               = "draft-or-create"
-	Create                                      = "create"
+	DraftOrCreate GitHubReleaseCreationStrategy = "draft-or-create"
+	Create        GitHubReleaseCreationStrategy = "create"
 )
 
 func isGitHubReleaseCreationStrategy(s string) bool {
@@ -130,6 +132,8 @@ func (c *GitHubConfig) SetApiTokenName(v *string) {
 }
 
 func (c *GitHubConfig) getStrategy() (*GitHubReleaseCreationStrategy, error) {
+	var s GitHubReleaseCreationStrategy
+
 	if c.values.Has(strategyKey) {
 		v := c.values[strategyKey].(string)
 
@@ -137,12 +141,13 @@ func (c *GitHubConfig) getStrategy() (*GitHubReleaseCreationStrategy, error) {
 			return nil, fmt.Errorf("%s is not a valid strategy", v)
 		}
 
-		s := GitHubReleaseCreationStrategy(v)
-
-		return &s, nil
+		s = GitHubReleaseCreationStrategy(v)
+	} else {
+		logrus.Warnf("%s is missing so set `%s` as a default value", strategyKey, DraftOrCreate)
+		s = DraftOrCreate
 	}
 
-	return nil, fmt.Errorf("%s is missing\n", strategyKey)
+	return &s, nil
 }
 
 func (c *GitHubConfig) GetStrategy() GitHubReleaseCreationStrategy {
@@ -155,4 +160,30 @@ func (c *GitHubConfig) GetStrategy() GitHubReleaseCreationStrategy {
 
 func (c *GitHubConfig) SetStrategy(s GitHubReleaseCreationStrategy) {
 	c.values.Set(strategyKey, string(s))
+}
+
+func (c *GitHubConfig) getFileNamePattern() (string, error) {
+	if c.values.Has(fileNamePattern) {
+		pattern := c.values[fileNamePattern].(string)
+
+		if _, err := regexp.Compile(pattern); err != nil {
+			return "", err
+		} else {
+			return pattern, nil
+		}
+	} else {
+		return "", nil
+	}
+}
+
+func (c *GitHubConfig) GetFileNamePattern() string {
+	if t, err := c.getFileNamePattern(); err != nil {
+		panic(err)
+	} else {
+		return t
+	}
+}
+
+func (c *GitHubConfig) SetFileNamePattern(v *string) {
+	c.values.Set(fileNamePattern, v)
 }

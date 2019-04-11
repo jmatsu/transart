@@ -49,3 +49,11 @@ func gitHubAssetEndpoint(username string, repoName string, assetId uint) lib.End
 		Accept:   "application/vnd.github.v3+json",
 	}
 }
+
+func gitHubAssetDownloadEndpoint(browserDownloadUrl string) lib.Endpoint {
+	return lib.Endpoint{
+		Url:      browserDownloadUrl,
+		AuthType: lib.ParameterAuth,
+		Accept:   "application/octet-stream",
+	}
+}
