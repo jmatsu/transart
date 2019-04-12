@@ -277,7 +277,7 @@ func (gh gitHubImpl) DeleteAsset(username string, reponame string, token lib.Tok
 }
 
 func (gh gitHubImpl) DownloadAsset(username string, reponame string, token lib.Token, asset entity.GitHubAsset) ([]byte, error) {
-	endpoint := gitHubAssetDownloadEndpoint(asset.DownloadBrowserUrl)
+	endpoint := gitHubAssetDownloadEndpoint(username, reponame, asset.Id)
 
 	if bytes, err := lib.GetRequest(endpoint, token, nil); err != nil {
 		return nil, err

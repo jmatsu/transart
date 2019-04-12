@@ -50,10 +50,10 @@ func gitHubAssetEndpoint(username string, repoName string, assetId uint) lib.End
 	}
 }
 
-func gitHubAssetDownloadEndpoint(browserDownloadUrl string) lib.Endpoint {
+func gitHubAssetDownloadEndpoint(username string, repoName string, assetId uint) lib.Endpoint {
 	return lib.Endpoint{
-		Url:      browserDownloadUrl,
-		AuthType: lib.ParameterAuth,
+		Url:      fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/assets/%d", url.PathEscape(username), url.PathEscape(repoName), assetId),
+		AuthType: lib.HeaderAuth,
 		Accept:   "application/octet-stream",
 	}
 }
