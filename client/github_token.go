@@ -25,13 +25,13 @@ func newGitHubToken(t null.String) lib.Token {
 }
 
 func (t *gitHubToken) SetToHeader(request *http.Request) {
-	if !lib.IsNil(t) {
+	if t != nil {
 		request.Header.Set("Authorization", fmt.Sprintf("token %s", t.token))
 	}
 }
 
 func (t *gitHubToken) ToParam() url.Values {
-	if !lib.IsNil(t) {
+	if t == nil {
 		return nil
 	}
 
