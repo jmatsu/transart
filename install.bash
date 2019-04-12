@@ -4,7 +4,7 @@
 
 set -eu
 
-readonly RELEASE_URL="https://github.com/jmatsu/artifact-transfer/releases"
+readonly RELEASE_URL="https://github.com/jmatsu/transart/releases"
 
 die() {
     echo "$@" 1>&2
