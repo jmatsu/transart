@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/jmatsu/artifact-transfer/tree/master.svg?style=svg)](https://circleci.com/gh/jmatsu/artifact-transfer/tree/master)
+[![CircleCI](https://circleci.com/gh/jmatsu/transart/tree/master.svg?style=svg)](https://circleci.com/gh/jmatsu/transart/tree/master)
 
 # transart
 
@@ -15,7 +15,10 @@ transart [-f <configuration file>] <command> [command options...]
 Download the binary directly
 
 ```bash
+# The latest binary
 curl -sL "https://raw.githubusercontent.com/jmatsu/transart/master/install.bash" | bash
+
+# The specific version
 curl -sL "https://raw.githubusercontent.com/jmatsu/transart/master/install.bash" | VERSION=<...> bash
 ```
 
@@ -63,7 +66,7 @@ transart upload
 Service|Source|Destination
 :---|:---|:---
 CircleCI| :white_check_mark: | :x:
-GitHub Release| will be supported | :white_check_mark:
+GitHub Release| :white_check_mark: | :white_check_mark:
 Local File System| :white_check_mark: | :white_check_mark:
 
 ### Configurations
@@ -103,11 +106,11 @@ api-token-name: <environment name> #CIRCLECI_TOKEN is used by default
 
 ```yaml
 type: github-release
-strategy: <draft|create|draft-or-create>
 username: <the username of the repository>
 reponame: <the name of the respoitory>
 
 # optional
+strategy: <draft|create|draft-or-create> # draft-or-create is used by default
 api-token-name: <environment name> #GITHUB_TOKEN is used by default
 ```
 
